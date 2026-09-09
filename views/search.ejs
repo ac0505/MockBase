@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Students - Exit Exam Tracker</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Albert+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,400,0,0" rel="stylesheet">
+    <link rel="stylesheet" href="/css/variables.css">
+    <link rel="stylesheet" href="/css/search.css">
+</head>
+<body>
+    <%- include('sideMenuBar') %>
+
+    <main class="main-wrapper">
+        <div class="page-header">
+            <h1 class="page-title">Students</h1>
+        </div>
+
+        <div class="controls-row">
+            <div class="search-container">
+                <input 
+                    type="text" 
+                    id="studentSearch" 
+                    class="search-input" 
+                    placeholder="Search by name..." 
+                    autocomplete="off"
+                    aria-label="Search students"
+                >
+            </div>
+            
+            <div class="search-filter-wrapper">
+                <button type="button" class="filter-btn" id="filterBtn" aria-expanded="false" aria-controls="filterDropdown">
+                    <span class="material-symbols-outlined" style="font-size: 18px; margin-right: 6px;">filter_list</span>
+                    Filter
+                    <span id="filterActiveBadge" class="filter-active-badge" style="display: none;"></span>
+                </button>
+
+                <!-- Filter Dropdown Popover -->
+                <div id="filterDropdown" class="filter-dropdown" style="display: none;">
+                    <div class="filter-header">
+                        <span class="filter-title">Filter Students</span>
+                        <button type="button" id="btnCloseFilter" class="filter-close-btn" aria-label="Close filter">&times;</button>
+                    </div>
+
+                    <div class="filter-group">
+                        <label for="filterProgram" class="filter-label">Program</label>
+                        <select id="filterProgram" class="filter-select">
+                            <option value="ALL">All Programs</option>
+                            <option value="AR">AR</option>
+                            <option value="CE">CE</option>
+                            <option value="CHE">CHE</option>
+                            <option value="CPE">CPE</option>
+                            <option value="EE">EE</option>
+                            <option value="ECE">ECE</option>
+                            <option value="IE">IE</option>
+                            <option value="ME">ME</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label for="filterCourse" class="filter-label">Course Code</label>
+                        <select id="filterCourse" class="filter-select">
+                            <option value="ALL">All Course Codes</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label for="filterSection" class="filter-label">Section</label>
+                        <select id="filterSection" class="filter-select">
+                            <option value="ALL">All Sections</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-footer">
+                        <button type="button" id="btnResetFilter" class="btn-filter-reset">Reset</button>
+                        <button type="button" id="btnApplyFilter" class="btn-filter-apply">Apply</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <table class="students-table" id="studentsTable">
+                <thead>
+                    <tr>
+                        <th>Surname</th>
+                        <th>First name/M.I.</th>
+                        <th>Student ID</th>
+                        <th>Course Code</th>
+                        <th>Program</th>
+                        <th>Section</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                    <tr data-surname="Caunga" data-firstname="Andrea Cassandra S." data-studentid="2023130123" data-course="MATH800E" data-program="CPE" data-section="A361">
+                        <td>Caunga</td>
+                        <td>Andrea Cassandra S.</td>
+                        <td>2023130123</td>
+                        <td>MATH800E</td>
+                        <td>CPE</td>
+                        <td>A361</td>
+                        <td><span class="status-badge passed" title="Click to update status">P</span></td>
+                    </tr>
+                    <tr data-surname="Cruzo" data-firstname="Leah Rouse L." data-studentid="2021110413" data-course="MATH800E" data-program="CPE" data-section="A361">
+                        <td>Cruzo</td>
+                        <td>Leah Rouse L.</td>
+                        <td>2021110413</td>
+                        <td>MATH800E</td>
+                        <td>CPE</td>
+                        <td>A361</td>
+                        <td><span class="status-badge completion" title="Click to update status">C</span></td>
+                    </tr>
+                    <tr data-surname="Cruzo" data-firstname="Leah Rouse L." data-studentid="2021110413" data-course="CPE802E" data-program="CPE" data-section="A461">
+                        <td>Cruzo</td>
+                        <td>Leah Rouse L.</td>
+                        <td>2021110413</td>
+                        <td>CPE802E</td>
+                        <td>CPE</td>
+                        <td>A461</td>
+                        <td><span class="status-badge passed" title="Click to update status">P</span></td>
+                    </tr>
+                    <tr data-surname="Dela Cruz" data-firstname="Juan P." data-studentid="2022105892" data-course="CPE801E" data-program="CPE" data-section="A461">
+                        <td>Dela Cruz</td>
+                        <td>Juan P.</td>
+                        <td>2022105892</td>
+                        <td>CPE801E</td>
+                        <td>CPE</td>
+                        <td>A461</td>
+                        <td><span class="status-badge passed" title="Click to update status">P</span></td>
+                    </tr>
+                    <tr data-surname="Santos" data-firstname="Maria Clara A." data-studentid="2023140921" data-course="MATH800E" data-program="ECE" data-section="B102">
+                        <td>Santos</td>
+                        <td>Maria Clara A.</td>
+                        <td>2023140921</td>
+                        <td>MATH800E</td>
+                        <td>ECE</td>
+                        <td>B102</td>
+                        <td><span class="status-badge completion" title="Click to update status">C</span></td>
+                    </tr>
+                    <tr data-surname="Gomez" data-firstname="David L." data-studentid="2023110999" data-course="ECE501E" data-program="ECE" data-section="B101">
+                        <td>Gomez</td>
+                        <td>David L.</td>
+                        <td>2023110999</td>
+                        <td>ECE501E</td>
+                        <td>ECE</td>
+                        <td>B101</td>
+                        <td><span class="status-badge passed" title="Click to update status">P</span></td>
+                    </tr>
+                    <tr data-surname="Reyes" data-firstname="Mark Anthony G." data-studentid="2021198432" data-course="EE601E" data-program="EE" data-section="A361">
+                        <td>Reyes</td>
+                        <td>Mark Anthony G.</td>
+                        <td>2021198432</td>
+                        <td>EE601E</td>
+                        <td>EE</td>
+                        <td>A361</td>
+                        <td><span class="status-badge passed" title="Click to update status">P</span></td>
+                    </tr>
+                    <tr data-surname="Caunga" data-firstname="Gabriel V." data-studentid="2022134567" data-course="CPE802E" data-program="CPE" data-section="A461">
+                        <td>Caunga</td>
+                        <td>Gabriel V.</td>
+                        <td>2022134567</td>
+                        <td>CPE802E</td>
+                        <td>CPE</td>
+                        <td>A461</td>
+                        <td><span class="status-badge passed" title="Click to update status">P</span></td>
+                    </tr>
+                    <tr data-surname="Mendoza" data-firstname="Sofia Marie T." data-studentid="2024100234" data-course="MATH800E" data-program="IE" data-section="C201">
+                        <td>Mendoza</td>
+                        <td>Sofia Marie T.</td>
+                        <td>2024100234</td>
+                        <td>MATH800E</td>
+                        <td>IE</td>
+                        <td>C201</td>
+                        <td><span class="status-badge completion" title="Click to update status">C</span></td>
+                    </tr>
+                    <tr data-surname="Cañete" data-firstname="Sophia R." data-studentid="2023150011" data-course="AR101E" data-program="AR" data-section="F301">
+                        <td>Cañete</td>
+                        <td>Sophia R.</td>
+                        <td>2023150011</td>
+                        <td>AR101E</td>
+                        <td>AR</td>
+                        <td>F301</td>
+                        <td><span class="status-badge passed" title="Click to update status">P</span></td>
+                    </tr>
+                    <tr data-surname="Tan" data-firstname="Ethan James M." data-studentid="2022140222" data-course="CE301E" data-program="CE" data-section="D101">
+                        <td>Tan</td>
+                        <td>Ethan James M.</td>
+                        <td>2022140222</td>
+                        <td>CE301E</td>
+                        <td>CE</td>
+                        <td>D101</td>
+                        <td><span class="status-badge completion" title="Click to update status">C</span></td>
+                    </tr>
+                    <tr data-surname="Lim" data-firstname="Beatrice C." data-studentid="2021130333" data-course="CHE201E" data-program="CHE" data-section="G101">
+                        <td>Lim</td>
+                        <td>Beatrice C.</td>
+                        <td>2021130333</td>
+                        <td>CHE201E</td>
+                        <td>CHE</td>
+                        <td>G101</td>
+                        <td><span class="status-badge passed" title="Click to update status">P</span></td>
+                    </tr>
+                    <tr data-surname="Ramos" data-firstname="Oliver K." data-studentid="2022160777" data-course="ME402E" data-program="ME" data-section="E201">
+                        <td>Ramos</td>
+                        <td>Oliver K.</td>
+                        <td>2022160777</td>
+                        <td>ME402E</td>
+                        <td>ME</td>
+                        <td>E201</td>
+                        <td><span class="status-badge passed" title="Click to update status">P</span></td>
+                    </tr>
+                    <tr id="noResultsRow" class="no-results-row" style="display: none;">
+                        <td colspan="7" class="no-results-cell">
+                            No matching student records found.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <!-- Update Status Popup Modal -->
+    <div id="statusModal" class="modal-backdrop" aria-hidden="true" style="display: none;">
+        <div class="modal-card" role="dialog" aria-labelledby="modalTitle">
+            <!-- Step 1: Confirmation Prompt -->
+            <div id="modalStepConfirm" class="modal-step">
+                <h2 id="modalTitle" class="modal-title">Update Status</h2>
+                <p class="modal-message">Do you want to update status for <strong id="studentNameText">Student</strong>?</p>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" id="btnConfirmNo">No</button>
+                    <button type="button" class="btn btn-primary" id="btnConfirmYes">Yes</button>
+                </div>
+            </div>
+
+            <!-- Step 2: Select Status & Save -->
+            <div id="modalStepSelect" class="modal-step" style="display: none;">
+                <h2 class="modal-title">Select Status</h2>
+                <p class="modal-subtext">Choose new status for <strong id="studentNameSelectText">Student</strong>:</p>
+                
+                <div class="status-options">
+                    <label class="status-option-card" for="optPassed">
+                        <input type="radio" name="statusOption" id="optPassed" value="P">
+                        <span class="status-badge passed">P</span>
+                        <span class="option-label">Passed</span>
+                    </label>
+                    
+                    <label class="status-option-card" for="optCompletion">
+                        <input type="radio" name="statusOption" id="optCompletion" value="C">
+                        <span class="status-badge completion">C</span>
+                        <span class="option-label">Completion</span>
+                    </label>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" id="btnCancelSelect">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="btnSaveStatus">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const searchInput = document.getElementById('studentSearch');
+            const tableBody = document.getElementById('tableBody');
+            const rows = tableBody.querySelectorAll('tr:not(.no-results-row)');
+            const noResultsRow = document.getElementById('noResultsRow');
+
+            // Sync thead width with tbody scrollbar
+            const tbody = document.querySelector('.students-table tbody');
+            const thead = document.querySelector('.students-table thead');
+            function syncScrollbarWidth() {
+                const scrollbarW = tbody.offsetWidth - tbody.clientWidth;
+                thead.style.paddingRight = scrollbarW + 'px';
+                thead.style.overflowY = 'hidden';
+            }
+            syncScrollbarWidth();
+            window.addEventListener('resize', syncScrollbarWidth);
+
+            const filterBtn = document.getElementById('filterBtn');
+            const filterDropdown = document.getElementById('filterDropdown');
+            const btnCloseFilter = document.getElementById('btnCloseFilter');
+            const btnResetFilter = document.getElementById('btnResetFilter');
+            const btnApplyFilter = document.getElementById('btnApplyFilter');
+            const filterActiveBadge = document.getElementById('filterActiveBadge');
+
+            const filterProgram = document.getElementById('filterProgram');
+            const filterCourse = document.getElementById('filterCourse');
+            const filterSection = document.getElementById('filterSection');
+
+            // Populate Course Code dropdown from dataset
+            function populateCourseDropdown() {
+                const courses = new Set();
+                rows.forEach(row => {
+                    const c = (row.dataset.course || '').trim();
+                    if (c) courses.add(c);
+                });
+
+                filterCourse.innerHTML = '<option value="ALL">All Course Codes</option>';
+                Array.from(courses).sort().forEach(c => {
+                    const opt = document.createElement('option');
+                    opt.value = c;
+                    opt.textContent = c;
+                    filterCourse.appendChild(opt);
+                });
+            }
+
+            // Update Section dropdown based ONLY on available opened sections for selected course
+            function updateSectionDropdown() {
+                const selectedCourse = filterCourse.value;
+                const selectedProgram = filterProgram.value;
+
+                if (selectedCourse === 'ALL') {
+                    filterSection.innerHTML = '<option value="ALL">Select a course code first</option>';
+                    filterSection.disabled = true;
+                    filterSection.value = 'ALL';
+                } else {
+                    filterSection.disabled = false;
+                    const currentSectionVal = filterSection.value;
+                    const availableSections = new Set();
+
+                    rows.forEach(row => {
+                        const c = (row.dataset.course || '').trim().toUpperCase();
+                        const p = (row.dataset.program || '').trim().toUpperCase();
+                        const s = (row.dataset.section || '').trim().toUpperCase();
+
+                        const matchesCourse = (c === selectedCourse.toUpperCase());
+                        const matchesProgram = (selectedProgram === 'ALL' || p === selectedProgram.toUpperCase());
+
+                        if (matchesCourse && matchesProgram && s) {
+                            availableSections.add(s);
+                        }
+                    });
+
+                    filterSection.innerHTML = '<option value="ALL">All Sections</option>';
+                    Array.from(availableSections).sort().forEach(sec => {
+                        const opt = document.createElement('option');
+                        opt.value = sec;
+                        opt.textContent = sec;
+                        filterSection.appendChild(opt);
+                    });
+
+                    if (availableSections.has(currentSectionVal)) {
+                        filterSection.value = currentSectionVal;
+                    } else {
+                        filterSection.value = 'ALL';
+                    }
+                }
+            }
+
+            populateCourseDropdown();
+            updateSectionDropdown();
+
+            filterCourse.addEventListener('change', updateSectionDropdown);
+            filterProgram.addEventListener('change', updateSectionDropdown);
+
+            // Combined Search & Filter Function
+            function filterStudents() {
+                const searchQuery = searchInput.value.trim().toLowerCase();
+                const selProg = filterProgram.value;
+                const selCourse = filterCourse.value;
+                const selSec = filterSection.value;
+
+                let visibleCount = 0;
+                let hasActiveFilter = (selProg !== 'ALL' || selCourse !== 'ALL' || selSec !== 'ALL');
+
+                filterActiveBadge.style.display = hasActiveFilter ? 'inline-block' : 'none';
+
+                rows.forEach(row => {
+                    const surname = (row.dataset.surname || '').toLowerCase();
+                    const firstname = (row.dataset.firstname || '').toLowerCase();
+                    const studentId = (row.dataset.studentid || '').toLowerCase();
+                    const course = (row.dataset.course || '').trim().toUpperCase();
+                    const program = (row.dataset.program || '').trim().toUpperCase();
+                    const section = (row.dataset.section || '').trim().toUpperCase();
+
+                    const fullText = row.textContent.toLowerCase();
+
+                    const matchesSearch = !searchQuery || 
+                        surname.includes(searchQuery) || 
+                        firstname.includes(searchQuery) || 
+                        studentId.includes(searchQuery) || 
+                        fullText.includes(searchQuery);
+
+                    const matchesProg = (selProg === 'ALL' || program === selProg.toUpperCase());
+                    const matchesCourse = (selCourse === 'ALL' || course === selCourse.toUpperCase());
+                    const matchesSec = (selSec === 'ALL' || section === selSec.toUpperCase());
+
+                    if (matchesSearch && matchesProg && matchesCourse && matchesSec) {
+                        row.style.display = '';
+                        visibleCount++;
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+
+                if (visibleCount === 0) {
+                    noResultsRow.style.display = '';
+                } else {
+                    noResultsRow.style.display = 'none';
+                }
+            }
+
+            // Real-time Search
+            searchInput.addEventListener('input', filterStudents);
+
+            // Toggle Filter Dropdown
+            filterBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const isExpanded = filterDropdown.style.display === 'block';
+                filterDropdown.style.display = isExpanded ? 'none' : 'block';
+                filterBtn.setAttribute('aria-expanded', String(!isExpanded));
+            });
+
+            btnCloseFilter.addEventListener('click', () => {
+                filterDropdown.style.display = 'none';
+                filterBtn.setAttribute('aria-expanded', 'false');
+            });
+
+            btnApplyFilter.addEventListener('click', () => {
+                filterStudents();
+                filterDropdown.style.display = 'none';
+                filterBtn.setAttribute('aria-expanded', 'false');
+            });
+
+            btnResetFilter.addEventListener('click', () => {
+                filterProgram.value = 'ALL';
+                filterCourse.value = 'ALL';
+                updateSectionDropdown();
+                filterSection.value = 'ALL';
+                filterStudents();
+            });
+
+            // Close filter dropdown on outside click
+            document.addEventListener('click', (e) => {
+                if (!filterDropdown.contains(e.target) && e.target !== filterBtn && !filterBtn.contains(e.target)) {
+                    filterDropdown.style.display = 'none';
+                    filterBtn.setAttribute('aria-expanded', 'false');
+                }
+            });
+
+            // Status Update Popup Modal Logic
+            let currentTargetBadge = null;
+            let currentStudentName = '';
+            let currentStatus = 'P';
+
+            tableBody.addEventListener('click', (e) => {
+                const badge = e.target.closest('.status-badge');
+                if (!badge) return;
+
+                const row = badge.closest('tr');
+                if (!row || row.classList.contains('no-results-row')) return;
+
+                currentTargetBadge = badge;
+                const surname = row.dataset.surname || '';
+                const firstname = row.dataset.firstname || '';
+                currentStudentName = `${firstname} ${surname}`.trim() || 'Student';
+                currentStatus = badge.classList.contains('completion') ? 'C' : 'P';
+
+                document.getElementById('studentNameText').textContent = currentStudentName;
+                document.getElementById('studentNameSelectText').textContent = currentStudentName;
+
+                document.getElementById('modalStepConfirm').style.display = 'block';
+                document.getElementById('modalStepSelect').style.display = 'none';
+
+                const modal = document.getElementById('statusModal');
+                modal.style.display = 'flex';
+                modal.setAttribute('aria-hidden', 'false');
+            });
+
+            document.getElementById('btnConfirmNo').addEventListener('click', closeModal);
+
+            document.getElementById('btnConfirmYes').addEventListener('click', () => {
+                if (currentStatus === 'C') {
+                    document.getElementById('optCompletion').checked = true;
+                } else {
+                    document.getElementById('optPassed').checked = true;
+                }
+
+                document.getElementById('modalStepConfirm').style.display = 'none';
+                document.getElementById('modalStepSelect').style.display = 'block';
+            });
+
+            document.getElementById('btnCancelSelect').addEventListener('click', closeModal);
+
+            document.getElementById('btnSaveStatus').addEventListener('click', () => {
+                if (!currentTargetBadge) return;
+
+                const selectedOption = document.querySelector('input[name="statusOption"]:checked');
+                if (!selectedOption) return;
+
+                const newStatus = selectedOption.value;
+
+                if (newStatus === 'P') {
+                    currentTargetBadge.className = 'status-badge passed';
+                    currentTargetBadge.textContent = 'P';
+                } else {
+                    currentTargetBadge.className = 'status-badge completion';
+                    currentTargetBadge.textContent = 'C';
+                }
+
+                closeModal();
+            });
+
+            function closeModal() {
+                const modal = document.getElementById('statusModal');
+                modal.style.display = 'none';
+                modal.setAttribute('aria-hidden', 'true');
+                currentTargetBadge = null;
+            }
+
+            document.getElementById('statusModal').addEventListener('click', (e) => {
+                if (e.target === document.getElementById('statusModal')) {
+                    closeModal();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

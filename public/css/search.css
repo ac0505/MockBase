@@ -1,0 +1,551 @@
+html, body {
+    height: 100%;
+    overflow: hidden;
+}
+
+body {
+    font-family: 'Albert Sans', sans-serif;
+    background-color: var(--color-white, #ffffff);
+    color: var(--color-charcoal, #272727);
+}
+
+.main-wrapper {
+    margin-left: 285px;
+    padding: 36px 48px 28px 24px;
+    height: 100vh;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transition: margin-left 180ms ease;
+}
+
+/* Adjust main layout margin when sidebar collapses */
+#main-sidebar.is-collapsed ~ .main-wrapper,
+body:has(#main-sidebar.is-collapsed) .main-wrapper {
+    margin-left: 100px;
+}
+
+.page-header {
+    flex: 0 0 auto;
+    margin-bottom: 24px;
+    margin-left: 50px;
+}
+
+.page-title {
+    font-size: 42px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: #1a1a1a;
+    margin-bottom: 20px;
+}
+
+/* Search & Filter Controls */
+.controls-row {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 60px;
+    max-width: 880px;
+    margin-bottom: 32px;
+    margin-left: 50px;
+}
+
+.search-container {
+    position: relative;
+    flex: 1 1 auto;
+}
+
+.search-input {
+    width: 100%;
+    height: 44px;
+    padding: 0 20px;
+    border-radius: 14px;
+    border: none;
+    background-color: var(--text-box-bg, #F7F7F7);
+    font-family: 'Albert Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--color-charcoal);
+    outline: none;
+    transition: background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.search-input::placeholder {
+    color: #b8b8b8;
+    font-weight: 400;
+}
+
+.search-input:focus {
+    background-color: #f0f0f0;
+    box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.05);
+}
+
+.search-filter-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+.filter-btn {
+    height: 44px;
+    padding: 0 28px;
+    border-radius: 14px;
+    border: none;
+    background-color: var(--text-box-bg, #F7F7F7);
+    font-family: 'Albert Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    color: #444444;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.filter-btn:hover {
+    background-color: #ebebeb;
+    color: var(--color-charcoal);
+}
+
+.filter-active-badge {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: #0b800d;
+    display: inline-block;
+    margin-left: 8px;
+}
+
+/* Filter Dropdown Popover */
+.filter-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    width: 320px;
+    background-color: #ffffff;
+    border-radius: 18px;
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.15);
+    border: 1px solid #eaeaea;
+    padding: 20px;
+    z-index: 100;
+    font-family: 'Albert Sans', sans-serif;
+    animation: fadeIn 0.15s ease;
+}
+
+.filter-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+}
+
+.filter-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #1a1a1a;
+}
+
+.filter-close-btn {
+    background: none;
+    border: none;
+    font-size: 22px;
+    color: #888888;
+    cursor: pointer;
+    line-height: 1;
+}
+
+.filter-close-btn:hover {
+    color: #1a1a1a;
+}
+
+.filter-group {
+    margin-bottom: 14px;
+}
+
+.filter-label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: #666666;
+    margin-bottom: 6px;
+}
+
+.filter-select {
+    width: 100%;
+    height: 40px;
+    padding: 0 14px;
+    border-radius: 10px;
+    border: 1px solid #e0e0e0;
+    background-color: #f9f9f9;
+    font-family: 'Albert Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    color: #272727;
+    outline: none;
+    cursor: pointer;
+    transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.filter-select:focus {
+    border-color: #272727;
+    background-color: #ffffff;
+}
+
+.filter-select:disabled {
+    background-color: #f0f0f0;
+    color: #a0a0a0;
+    cursor: not-allowed;
+    border-color: #e5e5e5;
+}
+
+.filter-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 20px;
+    padding-top: 14px;
+    border-top: 1px solid #f0f0f0;
+}
+
+.btn-filter-reset {
+    background: none;
+    border: none;
+    font-family: 'Albert Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: #888888;
+    cursor: pointer;
+}
+
+.btn-filter-reset:hover {
+    color: #d9534f;
+}
+
+.btn-filter-apply {
+    height: 36px;
+    padding: 0 20px;
+    border-radius: 10px;
+    border: none;
+    background-color: var(--color-charcoal, #272727);
+    color: #ffffff;
+    font-family: 'Albert Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+
+.btn-filter-apply:hover {
+    background-color: #000000;
+}
+
+/* Table Container & Table */
+.table-container {
+    flex: 1 1 auto;
+    width: calc(100% - 50px);
+    overflow: hidden;
+    position: relative;
+    margin-left: 50px;
+    padding-right: 50px;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+.students-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 15px;
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+}
+
+.students-table thead {
+    display: block;
+    width: 100%;
+    flex-shrink: 0;
+}
+
+.students-table thead tr {
+    display: table;
+    width: 100%;
+    table-layout: fixed;
+}
+
+.students-table tbody {
+    display: block;
+    flex: 1 1 auto;
+    overflow-y: auto;
+    min-height: 0;
+}
+
+.students-table tbody tr {
+    display: table;
+    width: 100%;
+    table-layout: fixed;
+}
+
+/* Table Header Row */
+.students-table th {
+    background-color: #ffffff;
+    padding: 14px 16px 20px 16px;
+    font-size: 15px;
+    font-weight: 700;
+    color: #1a1a1a;
+    white-space: nowrap;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.students-table td {
+    padding: 16px;
+    font-size: 15px;
+    font-weight: 500;
+    color: #2b2b2b;
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
+/* Fixed Column Widths & Alignments */
+.students-table th:nth-child(1),
+.students-table td:nth-child(1) {
+    width: 14%;
+    text-align: left;
+    padding-left: 0;
+}
+
+.students-table th:nth-child(2),
+.students-table td:nth-child(2) {
+    width: 24%;
+    text-align: left;
+}
+
+.students-table th:nth-child(3),
+.students-table td:nth-child(3) {
+    width: 16%;
+    text-align: center;
+}
+
+.students-table th:nth-child(4),
+.students-table td:nth-child(4) {
+    width: 16%;
+    text-align: center;
+}
+
+.students-table th:nth-child(5),
+.students-table td:nth-child(5) {
+    width: 10%;
+    text-align: center;
+}
+
+.students-table th:nth-child(6),
+.students-table td:nth-child(6) {
+    width: 10%;
+    text-align: center;
+}
+
+.students-table th:nth-child(7),
+.students-table td:nth-child(7) {
+    width: 10%;
+    text-align: center;
+}
+
+.no-results-cell {
+    text-align: center !important;
+    padding: 48px 16px !important;
+    font-size: 16px;
+    color: #888888;
+    font-weight: 500;
+}
+
+.students-table tbody tr {
+    transition: background-color 0.15s ease;
+}
+
+.students-table tbody tr:hover {
+    background-color: #fafafa;
+}
+
+/* Status Badge Styling */
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 24px;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: transform 0.15s ease, opacity 0.15s ease, box-shadow 0.15s ease;
+}
+
+.status-badge:hover {
+    transform: scale(1.1);
+    opacity: 0.9;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+}
+
+.status-badge.passed {
+    background-color: var(--light-green, #C0F7C4);
+    color: #0b800d;
+}
+
+.status-badge.completion {
+    background-color: var(--light-yellow, #F7F7C0);
+    color: #949100;
+}
+
+/* Update Status Popup Modal */
+.modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(4px);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.18s ease;
+}
+
+.modal-card {
+    background-color: #ffffff;
+    border-radius: 20px;
+    padding: 32px;
+    width: 90%;
+    max-width: 420px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.16);
+    font-family: 'Albert Sans', sans-serif;
+    animation: popIn 0.18s ease;
+}
+
+.modal-title {
+    font-size: 22px;
+    font-weight: 800;
+    color: #1a1a1a;
+    margin-bottom: 12px;
+}
+
+.modal-message,
+.modal-subtext {
+    font-size: 15px;
+    color: #555555;
+    line-height: 1.5;
+    margin-bottom: 24px;
+}
+
+.modal-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+.btn {
+    height: 42px;
+    padding: 0 24px;
+    border-radius: 12px;
+    border: none;
+    font-family: 'Albert Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.btn-secondary {
+    background-color: #f0f0f0;
+    color: #555555;
+}
+
+.btn-secondary:hover {
+    background-color: #e4e4e4;
+    color: #1a1a1a;
+}
+
+.btn-primary {
+    background-color: var(--color-charcoal, #272727);
+    color: #ffffff;
+}
+
+.btn-primary:hover {
+    background-color: #000000;
+}
+
+/* Status Options inside Step 2 */
+.status-options {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 28px;
+}
+
+.status-option-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 14px 18px;
+    border: 2px solid #eeeeee;
+    border-radius: 14px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.status-option-card:hover {
+    border-color: #cccccc;
+    background-color: #fafafa;
+}
+
+.status-option-card:has(input:checked) {
+    border-color: var(--color-charcoal, #272727);
+    background-color: #f7f7f7;
+}
+
+.status-option-card input[type="radio"] {
+    accent-color: var(--color-charcoal, #272727);
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
+
+.option-label {
+    font-size: 15px;
+    font-weight: 600;
+    color: #272727;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes popIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+@media (max-width: 900px) {
+    .main-wrapper {
+        margin-left: 90px;
+        padding: 24px 20px;
+    }
+    .page-title {
+        font-size: 32px;
+    }
+    .controls-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .filter-btn {
+        width: 100%;
+    }
+}

@@ -1,0 +1,31 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Albert Sans', sans-serif;
+    background-color: var(--color-white, #ffffff);
+    color: var(--color-charcoal, #272727);
+    min-height: 100vh;
+}
+
+.main-wrapper {
+    margin-left: 285px;
+    padding: 40px 48px 40px 24px;
+    transition: margin-left 180ms ease;
+}
+
+#main-sidebar.is-collapsed ~ .main-wrapper,
+body:has(#main-sidebar.is-collapsed) .main-wrapper {
+    margin-left: 100px;
+}
+
+.page-title {
+    font-size: 42px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: #1a1a1a;
+    margin-bottom: 28px;
+}

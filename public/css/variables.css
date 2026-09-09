@@ -1,0 +1,16 @@
+:root {
+    /* --- THE OFFICIAL SCHOOL PALETTE --- */
+    --color-charcoal: #272727;
+    --color-white: #ffffff;
+    --color-mapua-red: #a00100;
+    --color-mapua-blue: #002455;
+
+    /* --- STATUS COLORS --- */
+    --status-passed: #0B990D;
+    --status-completion: #DEDB16;
+    --light-green: #C0F7C4;
+    --light-yellow: #F7F7C0;
+
+    --text-box-bg: #F7F7F7;
+
+}
