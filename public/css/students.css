@@ -1,3 +1,11 @@
+@import url('/css/variables.css');
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
 html, body {
     height: 100%;
     overflow: hidden;
@@ -5,39 +13,38 @@ html, body {
 
 body {
     font-family: 'Albert Sans', sans-serif;
-    background-color: var(--color-white, #ffffff);
-    color: var(--color-charcoal, #272727);
+    background-color: var(--color-white);
+    color: var(--color-charcoal);
+    min-height: 100vh;
+    padding-top: 110px;
 }
 
 .main-wrapper {
-    margin-left: 285px;
-    padding: 36px 48px 28px 24px;
-    height: 100vh;
+    width: 100%;
+    max-width: 100%;
+    margin-left: 0;
+    padding: 0 32px 40px 32px;  
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    transition: margin-left 180ms ease;
-}
-
-/* Adjust main layout margin when sidebar collapses */
-#main-sidebar.is-collapsed ~ .main-wrapper,
-body:has(#main-sidebar.is-collapsed) .main-wrapper {
-    margin-left: 100px;
+    height: calc(100vh - 110px);
 }
 
 .page-header {
     flex: 0 0 auto;
-    margin-bottom: 24px;
-    margin-left: 50px;
+    margin-bottom: 0;
+    margin-left: 48px;
+
 }
 
 .page-title {
-    font-size: 42px;
+    font-size: 36px;
     font-weight: 800;
     letter-spacing: -0.02em;
-    color: #1a1a1a;
-    margin-bottom: 20px;
+    color: var(--color-charcoal);
+    margin-top: 12px;
+    margin-bottom: 24px;
 }
 
 /* Search & Filter Controls */
@@ -45,15 +52,19 @@ body:has(#main-sidebar.is-collapsed) .main-wrapper {
     flex: 0 0 auto;
     display: flex;
     align-items: center;
-    gap: 60px;
-    max-width: 880px;
-    margin-bottom: 32px;
-    margin-left: 50px;
+    justify-content: space-between;
+    gap: 16px;
+    width: 100%;
+    max-width: 100%;
+    margin-bottom: 20px;
+    margin-left: 0;
 }
 
 .search-container {
     position: relative;
-    flex: 1 1 auto;
+    flex: 0 0 800px;
+    width: 800px;
+    margin-left: 48px;
 }
 
 .search-input {
@@ -62,28 +73,31 @@ body:has(#main-sidebar.is-collapsed) .main-wrapper {
     padding: 0 20px;
     border-radius: 14px;
     border: none;
-    background-color: var(--text-box-bg, #F7F7F7);
+    background-color: var(--text-box-bg);
     font-family: 'Albert Sans', sans-serif;
     font-size: 15px;
     font-weight: 500;
     color: var(--color-charcoal);
     outline: none;
-    transition: background-color 0.2s ease, box-shadow 0.2s ease;
+    transition: background-color var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 .search-input::placeholder {
-    color: #b8b8b8;
+    color: var(--medium-gray);
     font-weight: 400;
 }
 
 .search-input:focus {
-    background-color: #f0f0f0;
+    background-color: var(--light-gray);
     box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.05);
+    outline: none;
+    box-shadow: none;
 }
 
 .search-filter-wrapper {
     position: relative;
     display: inline-block;
+    flex-shrink: 0;
 }
 
 .filter-btn {
@@ -91,21 +105,22 @@ body:has(#main-sidebar.is-collapsed) .main-wrapper {
     padding: 0 28px;
     border-radius: 14px;
     border: none;
-    background-color: var(--text-box-bg, #F7F7F7);
+    background-color: var(--text-box-bg);
     font-family: 'Albert Sans', sans-serif;
     font-size: 15px;
     font-weight: 600;
-    color: #444444;
+    color: var(--dark-gray);
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all var(--transition-fast);
     display: inline-flex;
     align-items: center;
-    justify-content: center;
+    justify-content: center;    
     position: relative;
+    right: 48px;
 }
 
 .filter-btn:hover {
-    background-color: #ebebeb;
+    background-color: var(--light-gray);
     color: var(--color-charcoal);
 }
 
@@ -113,25 +128,30 @@ body:has(#main-sidebar.is-collapsed) .main-wrapper {
     width: 8px;
     height: 8px;
     border-radius: 50%;
-    background-color: #0b800d;
+    background-color: var(--color-green);
     display: inline-block;
     margin-left: 8px;
+}
+
+/* Ensure the Add Button sits at the far right edge */
+.btn-add-student {
+    flex-shrink: 0;
 }
 
 /* Filter Dropdown Popover */
 .filter-dropdown {
     position: absolute;
     top: calc(100% + 8px);
-    right: 0;
+    right: 48px;
     width: 320px;
-    background-color: #ffffff;
+    background-color: var(--color-white);
     border-radius: 18px;
     box-shadow: 0 16px 36px rgba(0, 0, 0, 0.15);
-    border: 1px solid #eaeaea;
+    border: 1px solid var(--border-gray);
     padding: 20px;
     z-index: 100;
     font-family: 'Albert Sans', sans-serif;
-    animation: fadeIn 0.15s ease;
+    animation: fadeIn var(--transition-fast);
 }
 
 .filter-header {
@@ -144,20 +164,20 @@ body:has(#main-sidebar.is-collapsed) .main-wrapper {
 .filter-title {
     font-size: 16px;
     font-weight: 700;
-    color: #1a1a1a;
+    color: var(--color-charcoal);
 }
 
 .filter-close-btn {
     background: none;
     border: none;
     font-size: 22px;
-    color: #888888;
+    color: var(--subtle-text);
     cursor: pointer;
     line-height: 1;
 }
 
 .filter-close-btn:hover {
-    color: #1a1a1a;
+    color: var(--color-charcoal);
 }
 
 .filter-group {
@@ -168,7 +188,7 @@ body:has(#main-sidebar.is-collapsed) .main-wrapper {
     display: block;
     font-size: 13px;
     font-weight: 600;
-    color: #666666;
+    color: var(--dark-gray);
     margin-bottom: 6px;
 }
 
@@ -177,27 +197,27 @@ body:has(#main-sidebar.is-collapsed) .main-wrapper {
     height: 40px;
     padding: 0 14px;
     border-radius: 10px;
-    border: 1px solid #e0e0e0;
-    background-color: #f9f9f9;
+    border: 1px solid var(--border-gray);
+    background-color: var(--text-box-bg);
     font-family: 'Albert Sans', sans-serif;
     font-size: 14px;
     font-weight: 500;
-    color: #272727;
+    color: var(--color-charcoal);
     outline: none;
     cursor: pointer;
-    transition: border-color 0.15s ease, background-color 0.15s ease;
+    transition: border-color var(--transition-fast), background-color var(--transition-fast);
 }
 
 .filter-select:focus {
-    border-color: #272727;
-    background-color: #ffffff;
+    border-color: var(--color-charcoal);
+    background-color: var(--color-white);
 }
 
 .filter-select:disabled {
-    background-color: #f0f0f0;
-    color: #a0a0a0;
+    background-color: var(--light-gray);
+    color: var(--medium-gray);
     cursor: not-allowed;
-    border-color: #e5e5e5;
+    border-color: var(--border-gray);
 }
 
 .filter-footer {
@@ -206,7 +226,7 @@ body:has(#main-sidebar.is-collapsed) .main-wrapper {
     justify-content: space-between;
     margin-top: 20px;
     padding-top: 14px;
-    border-top: 1px solid #f0f0f0;
+    border-top: 1px solid var(--light-gray);
 }
 
 .btn-filter-reset {
@@ -215,12 +235,12 @@ body:has(#main-sidebar.is-collapsed) .main-wrapper {
     font-family: 'Albert Sans', sans-serif;
     font-size: 13px;
     font-weight: 600;
-    color: #888888;
+    color: var(--subtle-text);
     cursor: pointer;
 }
 
 .btn-filter-reset:hover {
-    color: #d9534f;
+    color: var(--color-mapua-red);
 }
 
 .btn-filter-apply {
@@ -228,13 +248,13 @@ body:has(#main-sidebar.is-collapsed) .main-wrapper {
     padding: 0 20px;
     border-radius: 10px;
     border: none;
-    background-color: var(--color-charcoal, #272727);
-    color: #ffffff;
+    background-color: var(--color-charcoal);
+    color: var(--color-white);
     font-family: 'Albert Sans', sans-serif;
     font-size: 13px;
     font-weight: 700;
     cursor: pointer;
-    transition: background-color 0.15s ease;
+    transition: background-color var(--transition-fast);
 }
 
 .btn-filter-apply:hover {
@@ -244,14 +264,16 @@ body:has(#main-sidebar.is-collapsed) .main-wrapper {
 /* Table Container & Table */
 .table-container {
     flex: 1 1 auto;
-    width: calc(100% - 50px);
+    width: 100%;
     overflow: hidden;
     position: relative;
-    margin-left: 50px;
-    padding-right: 50px;
+    margin-left: 48px;
+    margin-right: 48px;
+    padding-right: 0;
     display: flex;
     flex-direction: column;
     min-height: 0;
+    width: calc(100% - 96px);
 }
 
 .students-table {
@@ -269,6 +291,7 @@ body:has(#main-sidebar.is-collapsed) .main-wrapper {
     display: block;
     width: 100%;
     flex-shrink: 0;
+    padding-right: 8px;
 }
 
 .students-table thead tr {
@@ -280,7 +303,8 @@ body:has(#main-sidebar.is-collapsed) .main-wrapper {
 .students-table tbody {
     display: block;
     flex: 1 1 auto;
-    overflow-y: auto;
+    overflow-y: scroll;
+    scrollbar-gutter: stable;
     min-height: 0;
 }
 
@@ -292,47 +316,46 @@ body:has(#main-sidebar.is-collapsed) .main-wrapper {
 
 /* Table Header Row */
 .students-table th {
-    background-color: #ffffff;
+    background-color: var(--color-white);
     padding: 14px 16px 20px 16px;
     font-size: 15px;
     font-weight: 700;
-    color: #1a1a1a;
+    color: var(--color-charcoal);
     white-space: nowrap;
-    border-bottom: 1px solid #f0f0f0;
+    border-bottom: 1px solid var(--light-gray);
 }
 
 .students-table td {
     padding: 16px;
     font-size: 15px;
     font-weight: 500;
-    color: #2b2b2b;
+    color: var(--color-charcoal);
     vertical-align: middle;
     white-space: nowrap;
 }
 
-/* Fixed Column Widths & Alignments */
 .students-table th:nth-child(1),
 .students-table td:nth-child(1) {
-    width: 14%;
+    width: 15%;
     text-align: left;
-    padding-left: 0;
+    padding-left: 8px;
 }
 
 .students-table th:nth-child(2),
 .students-table td:nth-child(2) {
-    width: 24%;
+    width: 25%;
     text-align: left;
 }
 
 .students-table th:nth-child(3),
 .students-table td:nth-child(3) {
-    width: 16%;
+    width: 15%;
     text-align: center;
 }
 
 .students-table th:nth-child(4),
 .students-table td:nth-child(4) {
-    width: 16%;
+    width: 15%;
     text-align: center;
 }
 
@@ -358,16 +381,16 @@ body:has(#main-sidebar.is-collapsed) .main-wrapper {
     text-align: center !important;
     padding: 48px 16px !important;
     font-size: 16px;
-    color: #888888;
+    color: var(--subtle-text);
     font-weight: 500;
 }
 
 .students-table tbody tr {
-    transition: background-color 0.15s ease;
+    transition: background-color var(--transition-fast);
 }
 
 .students-table tbody tr:hover {
-    background-color: #fafafa;
+    background-color: var(--hover-gray);
 }
 
 /* Status Badge Styling */
@@ -382,7 +405,7 @@ body:has(#main-sidebar.is-collapsed) .main-wrapper {
     font-weight: 700;
     text-transform: uppercase;
     cursor: pointer;
-    transition: transform 0.15s ease, opacity 0.15s ease, box-shadow 0.15s ease;
+    transition: transform var(--transition-fast), opacity var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 .status-badge:hover {
@@ -392,13 +415,13 @@ body:has(#main-sidebar.is-collapsed) .main-wrapper {
 }
 
 .status-badge.passed {
-    background-color: var(--light-green, #C0F7C4);
-    color: #0b800d;
+    background-color: var(--light-green);
+    color: var(--dark-green);
 }
 
 .status-badge.completion {
-    background-color: var(--light-yellow, #F7F7C0);
-    color: #949100;
+    background-color: var(--light-yellow);
+    color: var(--dark-yellow);
 }
 
 /* Update Status Popup Modal */
@@ -414,31 +437,31 @@ body:has(#main-sidebar.is-collapsed) .main-wrapper {
     display: flex;
     align-items: center;
     justify-content: center;
-    animation: fadeIn 0.18s ease;
+    animation: fadeIn var(--transition-fast);
 }
 
 .modal-card {
-    background-color: #ffffff;
+    background-color: var(--color-white);
     border-radius: 20px;
     padding: 32px;
     width: 90%;
     max-width: 420px;
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.16);
     font-family: 'Albert Sans', sans-serif;
-    animation: popIn 0.18s ease;
+    animation: popIn var(--transition-fast);
 }
 
 .modal-title {
     font-size: 22px;
     font-weight: 800;
-    color: #1a1a1a;
+    color: var(--color-charcoal);
     margin-bottom: 12px;
 }
 
 .modal-message,
 .modal-subtext {
     font-size: 15px;
-    color: #555555;
+    color: var(--dark-gray);
     line-height: 1.5;
     margin-bottom: 24px;
 }
@@ -459,22 +482,22 @@ body:has(#main-sidebar.is-collapsed) .main-wrapper {
     font-size: 14px;
     font-weight: 700;
     cursor: pointer;
-    transition: all 0.15s ease;
+    transition: all var(--transition-fast);
 }
 
 .btn-secondary {
-    background-color: #f0f0f0;
-    color: #555555;
+    background-color: var(--light-gray);
+    color: var(--dark-gray);
 }
 
 .btn-secondary:hover {
-    background-color: #e4e4e4;
-    color: #1a1a1a;
+    background-color: var(--medium-gray);
+    color: var(--color-charcoal);
 }
 
 .btn-primary {
-    background-color: var(--color-charcoal, #272727);
-    color: #ffffff;
+    background-color: var(--color-charcoal);
+    color: var(--color-white);
 }
 
 .btn-primary:hover {
@@ -494,24 +517,24 @@ body:has(#main-sidebar.is-collapsed) .main-wrapper {
     align-items: center;
     gap: 16px;
     padding: 14px 18px;
-    border: 2px solid #eeeeee;
+    border: 2px solid var(--border-gray);
     border-radius: 14px;
     cursor: pointer;
-    transition: all 0.15s ease;
+    transition: all var(--transition-fast);
 }
 
 .status-option-card:hover {
-    border-color: #cccccc;
-    background-color: #fafafa;
+    border-color: var(--medium-gray);
+    background-color: var(--hover-gray);
 }
 
 .status-option-card:has(input:checked) {
-    border-color: var(--color-charcoal, #272727);
-    background-color: #f7f7f7;
+    border-color: var(--color-charcoal);
+    background-color: var(--text-box-bg);
 }
 
 .status-option-card input[type="radio"] {
-    accent-color: var(--color-charcoal, #272727);
+    accent-color: var(--color-charcoal);
     width: 18px;
     height: 18px;
     cursor: pointer;
@@ -520,7 +543,7 @@ body:has(#main-sidebar.is-collapsed) .main-wrapper {
 .option-label {
     font-size: 15px;
     font-weight: 600;
-    color: #272727;
+    color: var(--color-charcoal);
 }
 
 @keyframes fadeIn {
@@ -535,8 +558,8 @@ body:has(#main-sidebar.is-collapsed) .main-wrapper {
 
 @media (max-width: 900px) {
     .main-wrapper {
-        margin-left: 90px;
-        padding: 24px 20px;
+        margin-left: 0;
+        padding: 0 16px 20px 16px;
     }
     .page-title {
         font-size: 32px;
@@ -544,6 +567,7 @@ body:has(#main-sidebar.is-collapsed) .main-wrapper {
     .controls-row {
         flex-direction: column;
         align-items: stretch;
+        gap: 12px;
     }
     .filter-btn {
         width: 100%;

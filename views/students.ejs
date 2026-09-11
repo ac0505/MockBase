@@ -9,30 +9,38 @@
     <link href="https://fonts.googleapis.com/css2?family=Albert+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,400,0,0" rel="stylesheet">
     <link rel="stylesheet" href="/css/variables.css">
-    <link rel="stylesheet" href="/css/search.css">
+    <link rel="stylesheet" href="/css/students.css">
 </head>
 <body>
-    <%- include('sideMenuBar') %>
+    <%- include('menuBar') %>
 
     <main class="main-wrapper">
         <div class="page-header">
-            <h1 class="page-title">Students</h1>
+            <h1 class="page-title">Find Students</h1>
         </div>
 
         <div class="controls-row">
+            <!-- Search -->
             <div class="search-container">
                 <input 
                     type="text" 
                     id="studentSearch" 
                     class="search-input" 
-                    placeholder="Search by name..." 
+                    placeholder="Search by surname, first name, or student ID..." 
                     autocomplete="off"
                     aria-label="Search students"
                 >
             </div>
-            
+
+            <!-- Add Students -->
+            <button type="button" class="btn-add-student" id="addStudentBtn">
+                <span class="material-symbols-outlined" style="font-size: 18px; margin-right: 6px;">person_add</span>
+                Add Students
+            </button>
+
+            <!-- Filter -->
             <div class="search-filter-wrapper">
-                <button type="button" class="filter-btn" id="filterBtn" aria-expanded="false" aria-controls="filterDropdown">
+                <button type="button" class="filter-btn" id="filterBtn" onclick="toggleFilterDropdown(event)">
                     <span class="material-symbols-outlined" style="font-size: 18px; margin-right: 6px;">filter_list</span>
                     Filter
                     <span id="filterActiveBadge" class="filter-active-badge" style="display: none;"></span>
@@ -263,262 +271,6 @@
         </div>
     </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const searchInput = document.getElementById('studentSearch');
-            const tableBody = document.getElementById('tableBody');
-            const rows = tableBody.querySelectorAll('tr:not(.no-results-row)');
-            const noResultsRow = document.getElementById('noResultsRow');
-
-            // Sync thead width with tbody scrollbar
-            const tbody = document.querySelector('.students-table tbody');
-            const thead = document.querySelector('.students-table thead');
-            function syncScrollbarWidth() {
-                const scrollbarW = tbody.offsetWidth - tbody.clientWidth;
-                thead.style.paddingRight = scrollbarW + 'px';
-                thead.style.overflowY = 'hidden';
-            }
-            syncScrollbarWidth();
-            window.addEventListener('resize', syncScrollbarWidth);
-
-            const filterBtn = document.getElementById('filterBtn');
-            const filterDropdown = document.getElementById('filterDropdown');
-            const btnCloseFilter = document.getElementById('btnCloseFilter');
-            const btnResetFilter = document.getElementById('btnResetFilter');
-            const btnApplyFilter = document.getElementById('btnApplyFilter');
-            const filterActiveBadge = document.getElementById('filterActiveBadge');
-
-            const filterProgram = document.getElementById('filterProgram');
-            const filterCourse = document.getElementById('filterCourse');
-            const filterSection = document.getElementById('filterSection');
-
-            // Populate Course Code dropdown from dataset
-            function populateCourseDropdown() {
-                const courses = new Set();
-                rows.forEach(row => {
-                    const c = (row.dataset.course || '').trim();
-                    if (c) courses.add(c);
-                });
-
-                filterCourse.innerHTML = '<option value="ALL">All Course Codes</option>';
-                Array.from(courses).sort().forEach(c => {
-                    const opt = document.createElement('option');
-                    opt.value = c;
-                    opt.textContent = c;
-                    filterCourse.appendChild(opt);
-                });
-            }
-
-            // Update Section dropdown based ONLY on available opened sections for selected course
-            function updateSectionDropdown() {
-                const selectedCourse = filterCourse.value;
-                const selectedProgram = filterProgram.value;
-
-                if (selectedCourse === 'ALL') {
-                    filterSection.innerHTML = '<option value="ALL">Select a course code first</option>';
-                    filterSection.disabled = true;
-                    filterSection.value = 'ALL';
-                } else {
-                    filterSection.disabled = false;
-                    const currentSectionVal = filterSection.value;
-                    const availableSections = new Set();
-
-                    rows.forEach(row => {
-                        const c = (row.dataset.course || '').trim().toUpperCase();
-                        const p = (row.dataset.program || '').trim().toUpperCase();
-                        const s = (row.dataset.section || '').trim().toUpperCase();
-
-                        const matchesCourse = (c === selectedCourse.toUpperCase());
-                        const matchesProgram = (selectedProgram === 'ALL' || p === selectedProgram.toUpperCase());
-
-                        if (matchesCourse && matchesProgram && s) {
-                            availableSections.add(s);
-                        }
-                    });
-
-                    filterSection.innerHTML = '<option value="ALL">All Sections</option>';
-                    Array.from(availableSections).sort().forEach(sec => {
-                        const opt = document.createElement('option');
-                        opt.value = sec;
-                        opt.textContent = sec;
-                        filterSection.appendChild(opt);
-                    });
-
-                    if (availableSections.has(currentSectionVal)) {
-                        filterSection.value = currentSectionVal;
-                    } else {
-                        filterSection.value = 'ALL';
-                    }
-                }
-            }
-
-            populateCourseDropdown();
-            updateSectionDropdown();
-
-            filterCourse.addEventListener('change', updateSectionDropdown);
-            filterProgram.addEventListener('change', updateSectionDropdown);
-
-            // Combined Search & Filter Function
-            function filterStudents() {
-                const searchQuery = searchInput.value.trim().toLowerCase();
-                const selProg = filterProgram.value;
-                const selCourse = filterCourse.value;
-                const selSec = filterSection.value;
-
-                let visibleCount = 0;
-                let hasActiveFilter = (selProg !== 'ALL' || selCourse !== 'ALL' || selSec !== 'ALL');
-
-                filterActiveBadge.style.display = hasActiveFilter ? 'inline-block' : 'none';
-
-                rows.forEach(row => {
-                    const surname = (row.dataset.surname || '').toLowerCase();
-                    const firstname = (row.dataset.firstname || '').toLowerCase();
-                    const studentId = (row.dataset.studentid || '').toLowerCase();
-                    const course = (row.dataset.course || '').trim().toUpperCase();
-                    const program = (row.dataset.program || '').trim().toUpperCase();
-                    const section = (row.dataset.section || '').trim().toUpperCase();
-
-                    const fullText = row.textContent.toLowerCase();
-
-                    const matchesSearch = !searchQuery || 
-                        surname.includes(searchQuery) || 
-                        firstname.includes(searchQuery) || 
-                        studentId.includes(searchQuery) || 
-                        fullText.includes(searchQuery);
-
-                    const matchesProg = (selProg === 'ALL' || program === selProg.toUpperCase());
-                    const matchesCourse = (selCourse === 'ALL' || course === selCourse.toUpperCase());
-                    const matchesSec = (selSec === 'ALL' || section === selSec.toUpperCase());
-
-                    if (matchesSearch && matchesProg && matchesCourse && matchesSec) {
-                        row.style.display = '';
-                        visibleCount++;
-                    } else {
-                        row.style.display = 'none';
-                    }
-                });
-
-                if (visibleCount === 0) {
-                    noResultsRow.style.display = '';
-                } else {
-                    noResultsRow.style.display = 'none';
-                }
-            }
-
-            // Real-time Search
-            searchInput.addEventListener('input', filterStudents);
-
-            // Toggle Filter Dropdown
-            filterBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                const isExpanded = filterDropdown.style.display === 'block';
-                filterDropdown.style.display = isExpanded ? 'none' : 'block';
-                filterBtn.setAttribute('aria-expanded', String(!isExpanded));
-            });
-
-            btnCloseFilter.addEventListener('click', () => {
-                filterDropdown.style.display = 'none';
-                filterBtn.setAttribute('aria-expanded', 'false');
-            });
-
-            btnApplyFilter.addEventListener('click', () => {
-                filterStudents();
-                filterDropdown.style.display = 'none';
-                filterBtn.setAttribute('aria-expanded', 'false');
-            });
-
-            btnResetFilter.addEventListener('click', () => {
-                filterProgram.value = 'ALL';
-                filterCourse.value = 'ALL';
-                updateSectionDropdown();
-                filterSection.value = 'ALL';
-                filterStudents();
-            });
-
-            // Close filter dropdown on outside click
-            document.addEventListener('click', (e) => {
-                if (!filterDropdown.contains(e.target) && e.target !== filterBtn && !filterBtn.contains(e.target)) {
-                    filterDropdown.style.display = 'none';
-                    filterBtn.setAttribute('aria-expanded', 'false');
-                }
-            });
-
-            // Status Update Popup Modal Logic
-            let currentTargetBadge = null;
-            let currentStudentName = '';
-            let currentStatus = 'P';
-
-            tableBody.addEventListener('click', (e) => {
-                const badge = e.target.closest('.status-badge');
-                if (!badge) return;
-
-                const row = badge.closest('tr');
-                if (!row || row.classList.contains('no-results-row')) return;
-
-                currentTargetBadge = badge;
-                const surname = row.dataset.surname || '';
-                const firstname = row.dataset.firstname || '';
-                currentStudentName = `${firstname} ${surname}`.trim() || 'Student';
-                currentStatus = badge.classList.contains('completion') ? 'C' : 'P';
-
-                document.getElementById('studentNameText').textContent = currentStudentName;
-                document.getElementById('studentNameSelectText').textContent = currentStudentName;
-
-                document.getElementById('modalStepConfirm').style.display = 'block';
-                document.getElementById('modalStepSelect').style.display = 'none';
-
-                const modal = document.getElementById('statusModal');
-                modal.style.display = 'flex';
-                modal.setAttribute('aria-hidden', 'false');
-            });
-
-            document.getElementById('btnConfirmNo').addEventListener('click', closeModal);
-
-            document.getElementById('btnConfirmYes').addEventListener('click', () => {
-                if (currentStatus === 'C') {
-                    document.getElementById('optCompletion').checked = true;
-                } else {
-                    document.getElementById('optPassed').checked = true;
-                }
-
-                document.getElementById('modalStepConfirm').style.display = 'none';
-                document.getElementById('modalStepSelect').style.display = 'block';
-            });
-
-            document.getElementById('btnCancelSelect').addEventListener('click', closeModal);
-
-            document.getElementById('btnSaveStatus').addEventListener('click', () => {
-                if (!currentTargetBadge) return;
-
-                const selectedOption = document.querySelector('input[name="statusOption"]:checked');
-                if (!selectedOption) return;
-
-                const newStatus = selectedOption.value;
-
-                if (newStatus === 'P') {
-                    currentTargetBadge.className = 'status-badge passed';
-                    currentTargetBadge.textContent = 'P';
-                } else {
-                    currentTargetBadge.className = 'status-badge completion';
-                    currentTargetBadge.textContent = 'C';
-                }
-
-                closeModal();
-            });
-
-            function closeModal() {
-                const modal = document.getElementById('statusModal');
-                modal.style.display = 'none';
-                modal.setAttribute('aria-hidden', 'true');
-                currentTargetBadge = null;
-            }
-
-            document.getElementById('statusModal').addEventListener('click', (e) => {
-                if (e.target === document.getElementById('statusModal')) {
-                    closeModal();
-                }
-            });
-        });
-    </script>
+    <script src="/scripts/students.js"></script>
 </body>
 </html>

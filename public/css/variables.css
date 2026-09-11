@@ -6,11 +6,23 @@
     --color-mapua-blue: #002455;
 
     /* --- STATUS COLORS --- */
-    --status-passed: #0B990D;
-    --status-completion: #DEDB16;
+    --color-green: #0B990D;
+    --color-yellow: #DEDB16;
     --light-green: #C0F7C4;
     --light-yellow: #F7F7C0;
+    --dark-green: #0b800d;
+    --dark-yellow: #949100;
 
+    /* --- GRAYSCALE & BACKGROUNDS --- */
     --text-box-bg: #F7F7F7;
+    --medium-gray: #C2C2C2;
+    --light-gray: #f0f0f0;
+    --dark-gray: #444444;
+    --border-gray: #e0e0e0;
+    --hover-gray: #fafafa;
+    --subtle-text: #888888;
 
+    /* --- TRANSITIONS --- */
+    --transition-fast: 0.15s ease;
+    --transition-normal: 0.25s ease;
 }
