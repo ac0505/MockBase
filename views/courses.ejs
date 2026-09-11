@@ -3,14 +3,144 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Exams</title>
+	<title><%= selectedExamRecord ? 'Exam Roster' : 'Exit Examinations' %> - Exit Exam Tracker</title>
 	<link rel="stylesheet" href="/css/variables.css">
 	<link rel="stylesheet" href="/css/courses.css">
 </head>
 <body>
 	<%- include('menuBar') %>
 	<main class="main-wrapper">
-		<h1 class="page-title">Exams</h1>
+		<% if (selectedExamRecord) { %>
+			<section class="roster-view" aria-labelledby="roster-title">
+				<a class="back-link" href="/courses<%= listQueryString ? `?${listQueryString}` : '' %>">
+					<span aria-hidden="true">&larr;</span> Back to examinations
+				</a>
+
+				<header class="page-header roster-header">
+					<div>
+						<p class="eyebrow">Exam roster</p>
+						<h1 id="roster-title" class="page-title"><%= selectedExamRecord.course.courseCode %></h1>
+						<p class="page-description"><%= selectedExamRecord.course.courseName %></p>
+					</div>
+					<div class="exam-summary" aria-label="Exam details">
+						<span><strong>Section</strong> <%= selectedExamRecord.course.section %></span>
+						<span><strong>Term</strong> <%= selectedExamRecord.term %></span>
+						<span><strong>School year</strong> <%= selectedExamRecord.schoolYear %></span>
+						<span><strong>Students</strong> <%= selectedExamRecord.roster.length %></span>
+					</div>
+				</header>
+
+				<div class="table-shell">
+					<table class="exam-table roster-table">
+						<thead>
+							<tr>
+								<th scope="col">Student Number</th>
+								<th scope="col">Student Name</th>
+								<th scope="col">Program</th>
+								<th scope="col">Result</th>
+								<th scope="col">Remarks</th>
+							</tr>
+						</thead>
+						<tbody>
+							<% if (selectedExamRecord.roster.length === 0) { %>
+								<tr><td class="empty-cell" colspan="5">No students are assigned to this exam record.</td></tr>
+							<% } %>
+							<% selectedExamRecord.roster.forEach((entry) => { %>
+								<% if (entry.student) { %>
+									<tr>
+										<td><%= entry.student.studentId %></td>
+										<td>
+											<%= [entry.student.firstName, entry.student.middleName, entry.student.surname].filter(Boolean).join(' ') %>
+										</td>
+										<td><%= entry.student.program %></td>
+										<td><%= entry.result || 'Not recorded' %></td>
+										<td><%= entry.remarks || '—' %></td>
+									</tr>
+								<% } %>
+							<% }) %>
+						</tbody>
+					</table>
+				</div>
+			</section>
+		<% } else { %>
+			<header class="page-header">
+				<p class="eyebrow">Exam management</p>
+				<h1 class="page-title">Exit Examinations</h1>
+				<p class="page-description">Find an exam offering and open its assigned student roster.</p>
+			</header>
+
+			<form class="filter-toolbar" method="get" action="/courses" role="search">
+				<div class="field search-field">
+					<label for="search">Search</label>
+					<input id="search" name="search" type="search" value="<%= filters.search %>" placeholder="Course code, name, section, or student" maxlength="100">
+				</div>
+				<div class="field">
+					<label for="term">Term</label>
+					<select id="term" name="term">
+						<option value="">All terms</option>
+						<% terms.forEach((term) => { %>
+							<option value="<%= term %>" <%= filters.term === term ? 'selected' : '' %>><%= term %></option>
+						<% }) %>
+					</select>
+				</div>
+				<div class="field">
+					<label for="schoolYear">School Year</label>
+					<select id="schoolYear" name="schoolYear">
+						<option value="">All school years</option>
+						<% schoolYears.forEach((schoolYear) => { %>
+							<option value="<%= schoolYear %>" <%= filters.schoolYear === schoolYear ? 'selected' : '' %>><%= schoolYear %></option>
+						<% }) %>
+					</select>
+				</div>
+				<button class="button button-primary" type="submit">Apply</button>
+				<a class="button button-secondary" href="/courses">Clear filters</a>
+			</form>
+
+			<div class="results-heading" aria-live="polite">
+				<p><strong><%= resultCount %></strong> matching exam <%= resultCount === 1 ? 'record' : 'records' %></p>
+			</div>
+
+			<div class="table-shell">
+				<table class="exam-table">
+					<thead>
+						<tr>
+							<th scope="col">Course Code</th>
+							<th scope="col">Course Name</th>
+							<th scope="col">Section</th>
+							<th scope="col">Term</th>
+							<th scope="col">School Year</th>
+							<th scope="col">Students</th>
+							<th scope="col"><span class="visually-hidden">Action</span></th>
+						</tr>
+					</thead>
+					<tbody>
+						<% if (examRecords.length === 0) { %>
+							<tr>
+								<td class="empty-cell" colspan="7">
+									<strong>No matching examinations found.</strong>
+									<span>Try changing your search or clearing the filters.</span>
+								</td>
+							</tr>
+						<% } %>
+						<% examRecords.forEach((record) => { %>
+							<% if (record.course) { %>
+								<tr>
+									<td class="course-code"><%= record.course.courseCode %></td>
+									<td><%= record.course.courseName %></td>
+									<td><%= record.course.section %></td>
+									<td><%= record.term %></td>
+									<td><%= record.schoolYear %></td>
+									<td><%= record.roster.length %></td>
+									<td class="action-cell">
+										<a class="roster-link" href="/courses/<%= record._id %>/roster<%= listQueryString ? `?${listQueryString}` : '' %>">View Roster</a>
+									</td>
+								</tr>
+							<% } %>
+						<% }) %>
+					</tbody>
+				</table>
+			</div>
+		<% } %>
 	</main>
 </body>
 </html>

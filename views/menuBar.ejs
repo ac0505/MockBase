@@ -21,8 +21,8 @@
             <a class="navbar-link" href="/students" title="Students">
                 <span class="navbar-label">Students</span>
             </a>
-            <a class="navbar-link" href="/courses" title="Courses">
-                <span class="navbar-label">Courses</span>
+            <a class="navbar-link" href="/courses" title="Exit Examinations">
+                <span class="navbar-label">Exams</span>
             </a>
         </div>
 
@@ -50,7 +50,7 @@
         const links = navbar.querySelectorAll('.navbar-link');
         links.forEach(link => {
             const href = link.getAttribute('href');
-            if (href === currentPath || (currentPath === '/' && href === '/dashboard')) {
+            if (href === currentPath || currentPath.startsWith(`${href}/`) || (currentPath === '/' && href === '/dashboard')) {
                 link.classList.add('active');
                 link.setAttribute('aria-current', 'page');
             } else {
