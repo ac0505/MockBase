@@ -21,8 +21,8 @@ body {
 }
 
 .login-card {
-    width: min(528px);
-    height: min(620px);
+    width: min(420px);
+    height: min(500px);
     background: var(--color-charcoal);
     border-radius: 16px;
     padding: 36px 30px;
@@ -35,12 +35,12 @@ body {
     justify-content: center;
     align-items: center;
     margin-top: 24px;
-    margin-bottom: 36px;
+    margin-bottom: 24px;
 }
 
 .login-logo {
-    width: 120px;
-    height: 120px;
+    width: 82px;
+    height: 82px;
     background: transparent;
     color: var(--color-charcoal);
     display: flex;
@@ -51,8 +51,8 @@ body {
 }
 
 .login-logo img {
-    width: 120px;
-    height: 120px;
+    width: 82px;
+    height: 82px;
     object-fit: contain;
     display: block;
 }
@@ -75,7 +75,7 @@ body {
 }
 
 .form-row label {
-    font-size: 18px;
+    font-size: 14px;
     font-weight: 600;
     color: var(--color-white);  
     margin-left: 24px;
@@ -84,7 +84,7 @@ body {
 
 .form-row input {
     width: auto;
-    height: 50px;
+    height: 40px;
     border: none;
     outline: none;
     border-radius: 10px;
@@ -107,14 +107,14 @@ body {
 }
 
 .login-button {
-    width: 150px;
-    height: 50px;
+    width: 110px;
+    height: 40px;
     border: none;
     border-radius: 20px;
     background: var(--color-black);
     align-self: center;
     color: var(--color-white);
-    font-size: 16px;
+    font-size: 14px;
     font-weight: 700;
     cursor: pointer;
     margin-top: 36px;
