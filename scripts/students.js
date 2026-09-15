@@ -16,6 +16,13 @@
         const filterCourse = document.getElementById('filterCourse');
         const filterSection = document.getElementById('filterSection');
         const filterActiveBadge = document.getElementById('filterActiveBadge');
+        const newStudentIdInput = document.getElementById('asNewStudentId');
+
+        if (newStudentIdInput) {
+            newStudentIdInput.addEventListener('input', () => {
+                newStudentIdInput.value = newStudentIdInput.value.replace(/\D/g, '').slice(0, 10);
+            });
+        }
 
         // Modal Elements
         const statusModal = document.getElementById('statusModal');
