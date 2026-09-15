@@ -16,6 +16,15 @@ const rosterEntrySchema = new mongoose.Schema(
       default: null
     },
 
+    status: {
+      type: String,
+      enum: {
+        values: ["P", "C", "Passed", "Continuing", "Failed", "Pending"],
+        message: "Status must be one of P, C, Passed, Continuing, Failed, or Pending"
+      },
+      default: "Pending"
+    },
+
     // Admin or proctor who entered the result
     recordedBy: {
       type: mongoose.Schema.Types.ObjectId,

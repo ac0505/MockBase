@@ -13,30 +13,33 @@
 </head>
 <body>
     <%- include('menuBar') %>
+    <% const studentRows = Array.isArray(locals.students) ? locals.students : []; %>
 
     <main class="main-wrapper">
         <div class="page-header">
-            <h1 class="page-title">Find Students</h1>
+            <h1 class="page-title">Students</h1>
         </div>
 
         <div class="controls-row">
-            <!-- Search -->
-            <div class="search-container">
-                <input 
-                    type="text" 
-                    id="studentSearch" 
-                    class="search-input" 
-                    placeholder="Search by surname, first name, or student ID..." 
-                    autocomplete="off"
-                    aria-label="Search students"
-                >
-            </div>
+            <div class="search-and-add">
+                <!-- Search -->
+                <div class="search-container">
+                    <input 
+                        type="text" 
+                        id="studentSearch" 
+                        class="search-input" 
+                        placeholder="Search by surname, first name, or student ID..." 
+                        autocomplete="off"
+                        aria-label="Search students"
+                    >
+                </div>
 
-            <!-- Add Students -->
-            <button type="button" class="btn-add-student" id="addStudentBtn">
-                <span class="material-symbols-outlined" style="font-size: 18px; margin-right: 6px;">person_add</span>
-                Add Students
-            </button>
+                <!-- Add Students -->
+                <button type="button" class="btn-add-student" id="addStudentBtn">
+                    Add Students
+                </button>
+            </div>
+            
 
             <!-- Filter -->
             <div class="search-filter-wrapper">
@@ -104,124 +107,27 @@
                     </tr>
                 </thead>
                 <tbody id="tableBody">
-                    <tr data-surname="Caunga" data-firstname="Andrea Cassandra S." data-studentid="2023130123" data-course="MATH800E" data-program="CPE" data-section="A361">
-                        <td>Caunga</td>
-                        <td>Andrea Cassandra S.</td>
-                        <td>2023130123</td>
-                        <td>MATH800E</td>
-                        <td>CPE</td>
-                        <td>A361</td>
-                        <td><span class="status-badge passed" title="Click to update status">P</span></td>
+                    <% studentRows.forEach(function(row) { %>
+                    <tr
+                        data-surname="<%= row.surname %>"
+                        data-firstname="<%= row.firstNameDisplay %>"
+                        data-studentid="<%= row.studentId %>"
+                        data-course="<%= row.courseCode %>"
+                        data-program="<%= row.program %>"
+                        data-section="<%= row.section %>"
+                        data-examrecordid="<%= row.examRecordId %>"
+                        data-studentobjectid="<%= row.studentObjectId %>"
+                    >
+                        <td><%= row.surname %></td>
+                        <td><%= row.firstNameDisplay %></td>
+                        <td><%= row.studentId %></td>
+                        <td><%= row.courseCode %></td>
+                        <td><%= row.program %></td>
+                        <td><%= row.section %></td>
+                        <td><span class="status-badge <%= row.statusClass %>" title="Click to update status"><%= row.statusLabel %></span></td>
                     </tr>
-                    <tr data-surname="Cruzo" data-firstname="Leah Rouse L." data-studentid="2021110413" data-course="MATH800E" data-program="CPE" data-section="A361">
-                        <td>Cruzo</td>
-                        <td>Leah Rouse L.</td>
-                        <td>2021110413</td>
-                        <td>MATH800E</td>
-                        <td>CPE</td>
-                        <td>A361</td>
-                        <td><span class="status-badge completion" title="Click to update status">C</span></td>
-                    </tr>
-                    <tr data-surname="Cruzo" data-firstname="Leah Rouse L." data-studentid="2021110413" data-course="CPE802E" data-program="CPE" data-section="A461">
-                        <td>Cruzo</td>
-                        <td>Leah Rouse L.</td>
-                        <td>2021110413</td>
-                        <td>CPE802E</td>
-                        <td>CPE</td>
-                        <td>A461</td>
-                        <td><span class="status-badge passed" title="Click to update status">P</span></td>
-                    </tr>
-                    <tr data-surname="Dela Cruz" data-firstname="Juan P." data-studentid="2022105892" data-course="CPE801E" data-program="CPE" data-section="A461">
-                        <td>Dela Cruz</td>
-                        <td>Juan P.</td>
-                        <td>2022105892</td>
-                        <td>CPE801E</td>
-                        <td>CPE</td>
-                        <td>A461</td>
-                        <td><span class="status-badge passed" title="Click to update status">P</span></td>
-                    </tr>
-                    <tr data-surname="Santos" data-firstname="Maria Clara A." data-studentid="2023140921" data-course="MATH800E" data-program="ECE" data-section="B102">
-                        <td>Santos</td>
-                        <td>Maria Clara A.</td>
-                        <td>2023140921</td>
-                        <td>MATH800E</td>
-                        <td>ECE</td>
-                        <td>B102</td>
-                        <td><span class="status-badge completion" title="Click to update status">C</span></td>
-                    </tr>
-                    <tr data-surname="Gomez" data-firstname="David L." data-studentid="2023110999" data-course="ECE501E" data-program="ECE" data-section="B101">
-                        <td>Gomez</td>
-                        <td>David L.</td>
-                        <td>2023110999</td>
-                        <td>ECE501E</td>
-                        <td>ECE</td>
-                        <td>B101</td>
-                        <td><span class="status-badge passed" title="Click to update status">P</span></td>
-                    </tr>
-                    <tr data-surname="Reyes" data-firstname="Mark Anthony G." data-studentid="2021198432" data-course="EE601E" data-program="EE" data-section="A361">
-                        <td>Reyes</td>
-                        <td>Mark Anthony G.</td>
-                        <td>2021198432</td>
-                        <td>EE601E</td>
-                        <td>EE</td>
-                        <td>A361</td>
-                        <td><span class="status-badge passed" title="Click to update status">P</span></td>
-                    </tr>
-                    <tr data-surname="Caunga" data-firstname="Gabriel V." data-studentid="2022134567" data-course="CPE802E" data-program="CPE" data-section="A461">
-                        <td>Caunga</td>
-                        <td>Gabriel V.</td>
-                        <td>2022134567</td>
-                        <td>CPE802E</td>
-                        <td>CPE</td>
-                        <td>A461</td>
-                        <td><span class="status-badge passed" title="Click to update status">P</span></td>
-                    </tr>
-                    <tr data-surname="Mendoza" data-firstname="Sofia Marie T." data-studentid="2024100234" data-course="MATH800E" data-program="IE" data-section="C201">
-                        <td>Mendoza</td>
-                        <td>Sofia Marie T.</td>
-                        <td>2024100234</td>
-                        <td>MATH800E</td>
-                        <td>IE</td>
-                        <td>C201</td>
-                        <td><span class="status-badge completion" title="Click to update status">C</span></td>
-                    </tr>
-                    <tr data-surname="Cañete" data-firstname="Sophia R." data-studentid="2023150011" data-course="AR101E" data-program="AR" data-section="F301">
-                        <td>Cañete</td>
-                        <td>Sophia R.</td>
-                        <td>2023150011</td>
-                        <td>AR101E</td>
-                        <td>AR</td>
-                        <td>F301</td>
-                        <td><span class="status-badge passed" title="Click to update status">P</span></td>
-                    </tr>
-                    <tr data-surname="Tan" data-firstname="Ethan James M." data-studentid="2022140222" data-course="CE301E" data-program="CE" data-section="D101">
-                        <td>Tan</td>
-                        <td>Ethan James M.</td>
-                        <td>2022140222</td>
-                        <td>CE301E</td>
-                        <td>CE</td>
-                        <td>D101</td>
-                        <td><span class="status-badge completion" title="Click to update status">C</span></td>
-                    </tr>
-                    <tr data-surname="Lim" data-firstname="Beatrice C." data-studentid="2021130333" data-course="CHE201E" data-program="CHE" data-section="G101">
-                        <td>Lim</td>
-                        <td>Beatrice C.</td>
-                        <td>2021130333</td>
-                        <td>CHE201E</td>
-                        <td>CHE</td>
-                        <td>G101</td>
-                        <td><span class="status-badge passed" title="Click to update status">P</span></td>
-                    </tr>
-                    <tr data-surname="Ramos" data-firstname="Oliver K." data-studentid="2022160777" data-course="ME402E" data-program="ME" data-section="E201">
-                        <td>Ramos</td>
-                        <td>Oliver K.</td>
-                        <td>2022160777</td>
-                        <td>ME402E</td>
-                        <td>ME</td>
-                        <td>E201</td>
-                        <td><span class="status-badge passed" title="Click to update status">P</span></td>
-                    </tr>
-                    <tr id="noResultsRow" class="no-results-row" style="display: none;">
+                    <% }); %>
+                    <tr id="noResultsRow" class="no-results-row" style="display: <%= studentRows.length === 0 ? '' : 'none' %>">
                         <td colspan="7" class="no-results-cell">
                             No matching student records found.
                         </td>
@@ -267,6 +173,97 @@
                     <button type="button" class="btn btn-secondary" id="btnCancelSelect">Cancel</button>
                     <button type="button" class="btn btn-primary" id="btnSaveStatus">Save</button>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Students Modal -->
+    <div id="addStudentsModal" class="modal-backdrop" aria-hidden="true" style="display: none;">
+        <div class="modal-card add-students-card" role="dialog" aria-labelledby="addStudentsTitle">
+            <div class="modal-header-row">
+                <h2 id="addStudentsTitle" class="modal-title">Add Students</h2>
+                <button type="button" class="filter-close-btn" id="btnCloseAddStudents" aria-label="Close">&times;</button>
+            </div>
+
+            <div class="add-students-body">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="asCourseSelect" class="filter-label">Course</label>
+                        <select id="asCourseSelect" class="filter-select">
+                            <option value="">Select a course...</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="asTermSelect" class="filter-label">Term</label>
+                        <select id="asTermSelect" class="filter-select">
+                            <option value="">Select term...</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="asSchoolYear" class="filter-label">School Year</label>
+                        <input type="text" id="asSchoolYear" class="filter-select" placeholder="2025-2026">
+                    </div>
+                </div>
+
+                <hr class="add-students-divider">
+
+                <div class="form-group">
+                    <label for="asStudentSearch" class="filter-label">Add a student</label>
+                    <div class="as-search-wrapper">
+                        <input type="text" id="asStudentSearch" class="search-input" placeholder="Search by name or student ID..." autocomplete="off">
+                        <div id="asSearchResults" class="as-search-results" style="display: none;"></div>
+                    </div>
+                    <button type="button" id="asShowNewStudentForm" class="btn-filter-reset" style="margin-top: 8px;">+ Add new student instead</button>
+                </div>
+
+                <div id="asNewStudentForm" class="as-new-student-form" style="display: none;">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="asNewStudentId" class="filter-label">Student ID</label>
+                            <input type="text" id="asNewStudentId" class="filter-select">
+                        </div>
+                        <div class="form-group">
+                            <label for="asNewProgram" class="filter-label">Program</label>
+                            <select id="asNewProgram" class="filter-select">
+                                <option value="AR">AR</option>
+                                <option value="CE">CE</option>
+                                <option value="CHE">CHE</option>
+                                <option value="CPE">CPE</option>
+                                <option value="EE">EE</option>
+                                <option value="ECE">ECE</option>
+                                <option value="IE">IE</option>
+                                <option value="ME">ME</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="asNewSurname" class="filter-label">Surname</label>
+                            <input type="text" id="asNewSurname" class="filter-select">
+                        </div>
+                        <div class="form-group">
+                            <label for="asNewFirstName" class="filter-label">First Name</label>
+                            <input type="text" id="asNewFirstName" class="filter-select">
+                        </div>
+                        <div class="form-group">
+                            <label for="asNewMiddleName" class="filter-label">Middle Name</label>
+                            <input type="text" id="asNewMiddleName" class="filter-select">
+                        </div>
+                    </div>
+                    <div class="modal-actions" style="justify-content: flex-start; margin-top: 8px;">
+                        <button type="button" id="asAddNewStudentBtn" class="btn btn-primary" style="height: 36px; padding: 0 16px; font-size: 13px;">Add to list</button>
+                        <button type="button" id="asCancelNewStudentBtn" class="btn btn-secondary" style="height: 36px; padding: 0 16px; font-size: 13px;">Cancel</button>
+                    </div>
+                </div>
+
+                <div class="as-selected-list" id="asSelectedList">
+                    <p class="as-empty-hint">No students added yet.</p>
+                </div>
+            </div>
+
+            <div class="modal-actions">
+                <button type="button" class="btn btn-secondary" id="btnCancelAddStudents">Cancel</button>
+                <button type="button" class="btn btn-primary" id="btnSubmitAddStudents">Add Students</button>
             </div>
         </div>
     </div>

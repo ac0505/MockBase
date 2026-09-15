@@ -21,10 +21,24 @@ const studentSchema = new mongoose.Schema(
       default: ""
     },
 
+    middleInitial: {
+      type: String,
+      trim: true,
+      uppercase: true,
+      default: ""
+    },
+
     surname: {
       type: String,
       required: true,
       trim: true
+    },
+
+    section: {
+      type: String,
+      required: true,
+      trim: true,
+      uppercase: true
     },
 
     program: {

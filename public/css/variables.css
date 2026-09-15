@@ -21,6 +21,7 @@
     --border-gray: #e0e0e0;
     --hover-gray: #fafafa;
     --subtle-text: #888888;
+    --color-black: #000000;
 
     /* --- TRANSITIONS --- */
     --transition-fast: 0.15s ease;
