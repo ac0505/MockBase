@@ -43,7 +43,7 @@
 
             <!-- Filter -->
             <div class="search-filter-wrapper">
-                <button type="button" class="filter-btn" id="filterBtn" onclick="toggleFilterDropdown(event)">
+                <button type="button" class="filter-btn" id="filterBtn" aria-expanded="false">
                     <span class="material-symbols-outlined" style="font-size: 18px; margin-right: 6px;">filter_list</span>
                     Filter
                     <span id="filterActiveBadge" class="filter-active-badge" style="display: none;"></span>
@@ -220,7 +220,7 @@
                     <div class="form-row">
                         <div class="form-group">
                             <label for="asNewStudentId" class="filter-label">Student ID</label>
-                            <input type="text" id="asNewStudentId" class="filter-select">
+                            <input type="text" id="asNewStudentId" class="filter-select" inputmode="numeric" pattern="[0-9]{1,10}" maxlength="10">
                         </div>
                         <div class="form-group">
                             <label for="asNewProgram" class="filter-label">Program</label>

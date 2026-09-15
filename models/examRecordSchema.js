@@ -16,6 +16,11 @@ const rosterEntrySchema = new mongoose.Schema(
       default: null
     },
 
+    recorded: {
+      type: Boolean,
+      default: false
+    },
+
     status: {
       type: String,
       enum: {
@@ -56,7 +61,7 @@ const examRecordSchema = new mongoose.Schema(
     },
     term: {
       type: String,
-      enum: ["1st Term", "2nd Term", "3rd Term", "Summer"],
+      enum: ["1st Term", "2nd Term", "3rd Term"],
       required: true
     },
     schoolYear: {
@@ -69,11 +74,11 @@ const examRecordSchema = new mongoose.Schema(
       required: true,
       validate: {
         validator(entries) {
-          if (!entries.length || entries.some((entry) => !entry.student)) return false;
+          if (entries.some((entry) => !entry.student)) return false;
           const studentIds = entries.map((entry) => entry.student.toString());
           return new Set(studentIds).size === studentIds.length;
         },
-        message: "Roster must contain at least one student and cannot contain duplicates"
+        message: "Roster cannot contain missing or duplicate students"
       }
     }
   },

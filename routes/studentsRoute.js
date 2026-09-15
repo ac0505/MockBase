@@ -162,9 +162,9 @@ studentsRouter.post("/api/add-to-roster", requireExamAccess, async (req, res) =>
             }
 
             const { studentId, surname, firstName, middleName, program } = entry || {};
-            if (!studentId || !surname || !firstName || !program) {
+            if (!/^\d{1,10}$/.test(studentId || "") || !surname || !firstName || !program) {
                 return res.status(400).json({
-                    error: "Each new student needs a student ID, surname, first name, and program."
+                    error: "Student ID must contain 1 to 10 digits, and each new student needs a surname, first name, and program."
                 });
             }
 
