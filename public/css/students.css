@@ -34,17 +34,16 @@ body {
 .page-header {
     flex: 0 0 auto;
     margin-bottom: 0;
-    margin-left: 48px;
+    margin-left: clamp(16px, 8vw, 120px);
 
 }
 
 .page-title {
-    font-size: 36px;
-    font-weight: 800;
-    letter-spacing: -0.02em;
-    color: var(--color-charcoal);
+    font-size: clamp(32px, 4vw, 44px);
+    letter-spacing: -.035em;
+    line-height: 1.05;
     margin-top: 12px;
-    margin-bottom: 24px;
+    margin-bottom: 12px;
 }
 
 /* Search & Filter Controls */
@@ -54,17 +53,16 @@ body {
     align-items: center;
     justify-content: space-between;
     gap: 16px;
-    width: 100%;
-    max-width: 100%;
     margin-bottom: 20px;
-    margin-left: 0;
+    margin-left: clamp(16px, 8vw, 120px);
+    margin-right: clamp(16px, 8vw, 120px);
 }
 
 .search-container {
     position: relative;
-    flex: 0 0 800px;
-    width: 800px;
-    margin-left: 48px;
+    flex: 1 1 auto;
+    width: 200px;
+    max-width: 800px;
 }
 
 .search-input {
@@ -100,6 +98,41 @@ body {
     flex-shrink: 0;
 }
 
+/* Add Student */
+.btn-add-student {
+    width: 140px;
+    height: 44px;
+    padding: 0 28px;
+    border-radius: 14px;
+    border: none;
+    background-color: var(--color-charcoal);
+    color: var(--color-white);
+    font-family: 'Albert Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color var(--transition-fast);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    white-space: nowrap;
+    left: 0;    
+}
+
+.btn-add-student:hover {
+    background-color: var(--dark-gray);
+    color: var(--color-white);
+}
+
+.search-and-add {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
 .filter-btn {
     height: 44px;
     padding: 0 28px;
@@ -116,7 +149,6 @@ body {
     align-items: center;
     justify-content: center;    
     position: relative;
-    right: 48px;
 }
 
 .filter-btn:hover {
@@ -131,11 +163,6 @@ body {
     background-color: var(--color-green);
     display: inline-block;
     margin-left: 8px;
-}
-
-/* Ensure the Add Button sits at the far right edge */
-.btn-add-student {
-    flex-shrink: 0;
 }
 
 /* Filter Dropdown Popover */
@@ -264,19 +291,20 @@ body {
 /* Table Container & Table */
 .table-container {
     flex: 1 1 auto;
-    width: 100%;
+    width: auto;
     overflow: hidden;
     position: relative;
-    margin-left: 48px;
-    margin-right: 48px;
     padding-right: 0;
     display: flex;
     flex-direction: column;
     min-height: 0;
-    width: calc(100% - 96px);
+    border-radius: 20px;
+    margin-left: clamp(16px, 8vw, 120px);
+    margin-right: clamp(16px, 8vw, 120px);
+    border: 1px solid var(--border-gray);
 }
 
-.students-table {
+.students-table {   
     width: 100%;
     border-collapse: separate;
     border-spacing: 0;
@@ -291,7 +319,8 @@ body {
     display: block;
     width: 100%;
     flex-shrink: 0;
-    padding-right: 8px;
+    padding-right: 8px; /* space for scrollbar */   
+    background-color: var(--light-gray);
 }
 
 .students-table thead tr {
@@ -303,11 +332,40 @@ body {
 .students-table tbody {
     display: block;
     flex: 1 1 auto;
-    overflow-y: scroll;
+    overflow-y: auto;
     scrollbar-gutter: stable;
     min-height: 0;
+
+    /* Firefox */
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
+}
+/* Chrome, Edge, Safari */
+.students-table tbody::-webkit-scrollbar {
+    width: 8px;
 }
 
+.students-table tbody::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.students-table tbody::-webkit-scrollbar-thumb {
+    background-color: transparent;
+    border-radius: 8px;
+}
+
+.students-table tbody:hover {
+    scrollbar-color: var(--medium-gray) transparent; /* Firefox */
+}
+
+.students-table tbody:hover::-webkit-scrollbar-thumb {
+    background-color: var(--medium-gray); /* Chrome, Edge, Safari */
+}
+
+.students-table tbody:hover::-webkit-scrollbar-thumb:hover {
+    background-color: var(--dark-gray);
+}
+/* ---------------------*/
 .students-table tbody tr {
     display: table;
     width: 100%;
@@ -316,13 +374,11 @@ body {
 
 /* Table Header Row */
 .students-table th {
-    background-color: var(--color-white);
-    padding: 14px 16px 20px 16px;
+    padding: 18px 16px 18px 16px;
     font-size: 15px;
     font-weight: 700;
     color: var(--color-charcoal);
     white-space: nowrap;
-    border-bottom: 1px solid var(--light-gray);
 }
 
 .students-table td {
@@ -338,12 +394,12 @@ body {
 .students-table td:nth-child(1) {
     width: 15%;
     text-align: left;
-    padding-left: 8px;
+    padding-left: 24px;
 }
 
 .students-table th:nth-child(2),
 .students-table td:nth-child(2) {
-    width: 25%;
+    width: 18%;
     text-align: left;
 }
 

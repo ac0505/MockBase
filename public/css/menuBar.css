@@ -85,13 +85,42 @@
     border-radius: 10px;
     cursor: pointer;
     align-items: center;
-    justify-content: center;
+    justify-content: center;    
 }
 
 #main-navbar .navbar-toggle:hover,
 #main-navbar .navbar-toggle:focus-visible {
-    background-color: rgba(255, 255, 255, 0.18);
-    outline: none;
+    background-color: var(--hover-gray);
+    outline: none;  
+}
+
+/* Logout Button Styling */
+.navbar-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* pushes logo, links, logout apart */
+}
+
+.navbar-logout-container {
+    margin-left: auto; /* pushes it to the far right */
+}
+
+.navbar-logout {
+    display: flex;
+    align-items: center;  
+    gap: 6px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: "Albert Sans", sans-serif;
+    color: inherit;
+    padding: 8px 12px;
+    border-radius: 6px;
+    transition: background 0.2s ease;
+}
+
+.navbar-logout:hover {
+    background: rgba(0, 0, 0, 0.08);
 }
 
 /* Mobile Dropdown Styling */

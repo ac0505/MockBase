@@ -5,6 +5,7 @@
 <link rel="stylesheet" href="/css/menuBar.css">
 
 <nav id="main-navbar" class="top-navbar" aria-label="Main navigation">
+    <script src="/scripts/menu.js" defer></script>
     <div class="navbar-container">
         <!-- Logo -->
         <div class="navbar-logo-container">
@@ -24,6 +25,14 @@
             <a class="navbar-link" href="/courses" title="Exit Examinations">
                 <span class="navbar-label">Exams</span>
             </a>
+        </div>
+
+        <!-- Logout Button -->
+        <div class="navbar-logout-container">
+            <button id="logout-btn" class="navbar-logout" type="button" title="Log out">
+                <span class="material-symbols-outlined" aria-hidden="true">logout</span>
+                <span class="navbar-label">Logout</span>
+            </button>
         </div>
 
         <!-- Mobile Toggle Button -->

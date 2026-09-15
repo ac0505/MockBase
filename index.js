@@ -8,6 +8,7 @@ import mongoose from "mongoose";
 dotenv.config();
 
 // Route Imports
+import loginRouter from "./routes/loginRoute.js";
 import dashboardRouter from "./routes/dashboardRoute.js";
 import coursesRouter from "./routes/coursesRoute.js";
 import studentsRouter from "./routes/studentsRoute.js";
@@ -45,13 +46,14 @@ app.use(express.static('public'));
 app.use('/scripts', express.static(path.join(__dirname, 'scripts')));
 
 // Routes
+app.use("/login", loginRouter);
 app.use("/dashboard", dashboardRouter);
 app.use("/students", studentsRouter);
 app.use("/courses", coursesRouter);
 
 // Default route
 app.get("/", (req, res) => {
-    res.redirect("/dashboard");
+    res.redirect("/login");
 });
 
 const mongoUri = process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/exam-grade-tracker";
