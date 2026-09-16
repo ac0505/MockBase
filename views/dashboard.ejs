@@ -3,14 +3,177 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Dashboard</title>
+	<title>Dashboard - Exit Exam Tracker</title>
 	<link rel="stylesheet" href="/css/variables.css">
 	<link rel="stylesheet" href="/css/dashboard.css">
 </head>
 <body>
 	<%- include('menuBar') %>
 	<main class="main-wrapper">
-		<h1 class="page-title">Dashboard</h1>
+
+		<!-- ── Dashboard grid: chart left, table right ── -->
+		<% const total = totalStudents || 1; %>
+		<% const passedPct = (totalPassed / total) * 100; %>
+		<% const completionPct = (totalCompletion / total) * 100; %>
+		<% const pendingCount = totalStudents - totalPassed - totalCompletion; %>
+		<% const pendingPct = (pendingCount / total) * 100; %>
+
+		<section class="dashboard-grid" aria-label="Summary statistics">
+			<!-- LEFT: Chart panel -->
+			<div class="chart-panel">
+				<h2 class="chart-title">Overall Distribution</h2>
+				<div class="donut-container">
+					<svg class="donut-chart" viewBox="0 0 160 160" aria-label="Pie chart: <%= totalPassed %> passed, <%= totalCompletion %> completion, <%= pendingCount %> pending">
+						<% if (totalStudents === 0) { %>
+							<circle class="donut-ring" cx="80" cy="80" r="60" />
+						<% } else { %>
+							<%
+								const R = 60;
+								const C = 2 * Math.PI * R;
+								let offset = C * 0.25;
+							%>
+							<% if (totalPassed > 0) { %>
+								<circle class="donut-segment donut-passed"
+									cx="80" cy="80" r="<%= R %>"
+									stroke-dasharray="<%= (passedPct / 100) * C %> <%= C - (passedPct / 100) * C %>"
+									stroke-dashoffset="<%= offset %>" />
+							<% } %>
+							<% offset -= (passedPct / 100) * C; %>
+							<% if (totalCompletion > 0) { %>
+								<circle class="donut-segment donut-completion"
+									cx="80" cy="80" r="<%= R %>"
+									stroke-dasharray="<%= (completionPct / 100) * C %> <%= C - (completionPct / 100) * C %>"
+									stroke-dashoffset="<%= offset %>" />
+							<% } %>
+							<% offset -= (completionPct / 100) * C; %>
+							<% if (pendingCount > 0) { %>
+								<circle class="donut-segment donut-pending"
+									cx="80" cy="80" r="<%= R %>"
+									stroke-dasharray="<%= (pendingPct / 100) * C %> <%= C - (pendingPct / 100) * C %>"
+									stroke-dashoffset="<%= offset %>" />
+							<% } %>
+						<% } %>
+					</svg>
+					<div class="donut-center-label">
+						<span class="donut-center-number"><%= totalStudents %></span>
+						<span class="donut-center-text">Total</span>
+					</div>
+				</div>
+				<ul class="chart-legend">
+					<li><span class="legend-dot legend-dot--passed"></span> Passed <strong><%= totalPassed %></strong></li>
+					<li><span class="legend-dot legend-dot--completion"></span> Completion <strong><%= totalCompletion %></strong></li>
+					<li><span class="legend-dot legend-dot--pending"></span> Pending <strong><%= pendingCount %></strong></li>
+				</ul>
+			</div>
+
+			<!-- RIGHT: Course table with inline filter -->
+			<div class="right-column">
+				<div class="course-breakdown">
+					<div class="section-header">
+						<h2 class="section-title">Course Breakdown</h2>
+						<span class="section-count"><%= courseRows.length %> course<%= courseRows.length === 1 ? '' : 's' %></span>
+
+						<!-- Filter button + dropdown -->
+						<div class="filter-wrapper">
+							<button class="filter-trigger" type="button" id="filterToggle">
+								<span class="material-symbols-outlined" aria-hidden="true">filter_list</span>
+								Filter
+							</button>
+							<div class="filter-dropdown" id="filterDropdown" hidden>
+								<form id="filterForm" method="get" action="/dashboard">
+									<div class="filter-dropdown-header">
+										<h3>Filter Results</h3>
+										<button class="filter-close" type="button" id="filterClose" aria-label="Close">
+											<span class="material-symbols-outlined" aria-hidden="true">close</span>
+										</button>
+									</div>
+									<div class="filter-field">
+										<label for="term">Term</label>
+										<select id="term" name="term">
+											<option value="">All Terms</option>
+											<% terms.forEach((term) => { %>
+												<option value="<%= term %>" <%= filters.term === term ? 'selected' : '' %>><%= term %></option>
+											<% }) %>
+										</select>
+									</div>
+									<div class="filter-field">
+										<label for="schoolYear">School Year</label>
+										<select id="schoolYear" name="schoolYear">
+											<option value="">All School Years</option>
+											<% schoolYears.forEach((sy) => { %>
+												<option value="<%= sy %>" <%= filters.schoolYear === sy ? 'selected' : '' %>><%= sy %></option>
+											<% }) %>
+										</select>
+									</div>
+									<div class="filter-actions">
+										<a class="filter-reset" href="/dashboard">Reset</a>
+										<button class="filter-apply" type="submit">Apply</button>
+									</div>
+								</form>
+							</div>
+						</div>
+					</div>
+
+					<div class="table-shell">
+						<table class="dash-table">
+							<thead>
+								<tr>
+									<th scope="col">Course Code</th>
+									<th scope="col" class="center-col">No. of Students</th>
+									<th scope="col" class="center-col">Passed</th>
+									<th scope="col" class="center-col">Completion</th>
+								</tr>
+							</thead>
+							<tbody>
+								<% if (courseRows.length === 0) { %>
+									<tr>
+										<td class="empty-cell" colspan="4">
+											<strong>No exam records found.</strong>
+											<span>Try changing your filters or add exam records first.</span>
+										</td>
+									</tr>
+								<% } %>
+								<% courseRows.forEach((row) => { %>
+									<tr>
+										<td class="course-code"><%= row.courseCode %></td>
+										<td class="center-col num-students"><%= row.students %></td>
+										<td class="center-col num-passed"><%= row.passed %></td>
+										<td class="center-col num-completion"><%= row.completion %></td>
+									</tr>
+								<% }) %>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</section>
 	</main>
+
+	<script>
+		(() => {
+			const toggle = document.getElementById('filterToggle');
+			const dropdown = document.getElementById('filterDropdown');
+			const closeBtn = document.getElementById('filterClose');
+
+			toggle.addEventListener('click', () => {
+				const isHidden = dropdown.hidden;
+				dropdown.hidden = !isHidden;
+				toggle.classList.toggle('active', isHidden);
+			});
+
+			closeBtn.addEventListener('click', () => {
+				dropdown.hidden = true;
+				toggle.classList.remove('active');
+			});
+
+			// Close dropdown when clicking outside
+			document.addEventListener('click', (e) => {
+				if (!dropdown.hidden && !dropdown.contains(e.target) && e.target !== toggle && !toggle.contains(e.target)) {
+					dropdown.hidden = true;
+					toggle.classList.remove('active');
+				}
+			});
+		})();
+	</script>
 </body>
 </html>
