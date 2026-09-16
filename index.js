@@ -3,7 +3,7 @@ import session from "express-session";
 import path from "path";
 import { fileURLToPath } from "url";
 import dotenv from "dotenv";
-import mongoose from "mongoose";
+import connectDB from "./database/mongo-dbconnect.js";
 
 dotenv.config();
 
@@ -56,10 +56,8 @@ app.get("/", (req, res) => {
     res.redirect("/login");
 });
 
-const mongoUri = process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/exam-grade-tracker";
-
 try {
-    await mongoose.connect(mongoUri);
+    await connectDB();
     app.listen(port, () => {
         console.log(`Exit Exam Tracker running at http://localhost:${port}`);
     });

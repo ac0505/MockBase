@@ -39,6 +39,16 @@
         const btnCancelAddStudents = document.getElementById('btnCancelAddStudents');
         const asCourseSelect = document.getElementById('asCourseSelect');
         const asTermSelect = document.getElementById('asTermSelect');
+        const asSchoolYear = document.getElementById('asSchoolYear');
+        const asStudentSearch = document.getElementById('asStudentSearch');
+        const asSearchResults = document.getElementById('asSearchResults');
+        const asShowNewStudentForm = document.getElementById('asShowNewStudentForm');
+        const asNewStudentForm = document.getElementById('asNewStudentForm');
+        const asAddNewStudentBtn = document.getElementById('asAddNewStudentBtn');
+        const asCancelNewStudentBtn = document.getElementById('asCancelNewStudentBtn');
+        const asSelectedList = document.getElementById('asSelectedList');
+        const btnSubmitAddStudents = document.getElementById('btnSubmitAddStudents');
+        const selectedStudents = [];
 
         let activeRow = null;
 
@@ -86,6 +96,103 @@
             addStudentsModal.style.display = 'none';
             addStudentsModal.setAttribute('aria-hidden', 'true');
         }
+
+        function renderSelectedStudents() {
+            if (!asSelectedList) return;
+            asSelectedList.innerHTML = selectedStudents.length
+                ? selectedStudents.map((student, index) => `
+                    <div class="as-selected-student">
+                        <span>${student.firstName} ${student.surname} (${student.studentId})</span>
+                        <button type="button" data-index="${index}" class="as-remove-student" aria-label="Remove student">&times;</button>
+                    </div>`).join('')
+                : '<p class="as-empty-hint">No students added yet.</p>';
+        }
+
+        function addStudentToSelection(student) {
+            const studentId = String(student.studentId || '').trim();
+            if (!studentId || selectedStudents.some((item) => item.studentId === studentId)) {
+                window.alert('This student is already on the list.');
+                return;
+            }
+            selectedStudents.push({...student, studentId});
+            renderSelectedStudents();
+            asStudentSearch.value = '';
+            asSearchResults.style.display = 'none';
+        }
+
+        asSelectedList?.addEventListener('click', (event) => {
+            const removeButton = event.target.closest('.as-remove-student');
+            if (!removeButton) return;
+            selectedStudents.splice(Number(removeButton.dataset.index), 1);
+            renderSelectedStudents();
+        });
+
+        asShowNewStudentForm?.addEventListener('click', () => {
+            asNewStudentForm.style.display = 'block';
+        });
+
+        asCancelNewStudentBtn?.addEventListener('click', () => {
+            asNewStudentForm.style.display = 'none';
+        });
+
+        asAddNewStudentBtn?.addEventListener('click', () => {
+            addStudentToSelection({
+                studentId: document.getElementById('asNewStudentId').value,
+                firstName: document.getElementById('asNewFirstName').value.trim(),
+                surname: document.getElementById('asNewSurname').value.trim(),
+                middleName: document.getElementById('asNewMiddleName').value.trim(),
+                program: document.getElementById('asNewProgram').value
+            });
+        });
+
+        asStudentSearch?.addEventListener('input', async () => {
+            const query = asStudentSearch.value.trim();
+            if (!query) {
+                asSearchResults.style.display = 'none';
+                return;
+            }
+
+            const response = await fetch(`/students/api/search?q=${encodeURIComponent(query)}`);
+            const result = await response.json();
+            asSearchResults.innerHTML = (result.students || []).map((student) => `
+                <button type="button" class="as-search-result" data-student='${JSON.stringify(student)}'>
+                    ${student.firstName} ${student.surname} (${student.studentId})
+                </button>`).join('');
+            asSearchResults.style.display = result.students?.length ? 'block' : 'none';
+        });
+
+        asSearchResults?.addEventListener('click', (event) => {
+            const resultButton = event.target.closest('.as-search-result');
+            if (resultButton) addStudentToSelection(JSON.parse(resultButton.dataset.student));
+        });
+
+        btnSubmitAddStudents?.addEventListener('click', async () => {
+            if (!asCourseSelect.value || !asTermSelect.value || !/^\d{4}-\d{4}$/.test(asSchoolYear.value.trim())) {
+                window.alert('Select a course, term, and valid school year first.');
+                return;
+            }
+            if (!selectedStudents.length) {
+                window.alert('Add at least one student first.');
+                return;
+            }
+
+            const response = await fetch('/students/api/add-to-roster', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    courseId: asCourseSelect.value,
+                    term: asTermSelect.value,
+                    schoolYear: asSchoolYear.value.trim(),
+                    students: selectedStudents
+                })
+            });
+            const result = await response.json().catch(() => ({}));
+            if (!response.ok) {
+                window.alert(result.error || 'Unable to add students right now.');
+                return;
+            }
+            window.location.reload();
+        });
 
         // ==========================================
         // 1. FILTER DROPDOWN TOGGLE & ACTIONS

@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const rosterEntrySchema = new mongoose.Schema(
   {
@@ -91,4 +91,4 @@ examRecordSchema.index(
 );
 examRecordSchema.index({ "roster.student": 1 });
 
-module.exports = mongoose.model("ExamRecord", examRecordSchema);
+export default mongoose.model("ExamRecord", examRecordSchema);

@@ -2,6 +2,7 @@
   "name": "exit-exam-tracker",
   "version": "1.0.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js"
