@@ -3,6 +3,7 @@ import session from "express-session";
 import path from "path";
 import { fileURLToPath } from "url";
 import dotenv from "dotenv";
+import mongoose from "mongoose";
 import connectDB from "./database/mongo-dbconnect.js";
 
 dotenv.config();
@@ -58,9 +59,31 @@ app.get("/", (req, res) => {
 
 try {
     await connectDB();
-    app.listen(port, () => {
+    const server = app.listen(port, () => {
         console.log(`Exit Exam Tracker running at http://localhost:${port}`);
     });
+
+    server.on("error", (error) => {
+        if (error.code === "EADDRINUSE") {
+            console.error(`Port ${port} is already in use. Stop the existing server or set a different PORT in .env.`);
+            process.exitCode = 1;
+            return;
+        }
+        console.error("Unable to start the server:", error.message);
+        process.exitCode = 1;
+    });
+
+    const shutdown = async (signal) => {
+        console.log(`\nReceived ${signal}. Shutting down...`);
+        server.close(async () => {
+            await mongoose.connection.close();
+            console.log("Server stopped.");
+            process.exit(0);
+        });
+    };
+
+    process.once("SIGINT", () => shutdown("SIGINT"));
+    process.once("SIGTERM", () => shutdown("SIGTERM"));
 } catch (error) {
     console.error("Unable to connect to MongoDB:", error.message);
     process.exitCode = 1;

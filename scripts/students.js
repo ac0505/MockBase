@@ -37,20 +37,90 @@
         const addStudentsModal = document.getElementById('addStudentsModal');
         const btnCloseAddStudents = document.getElementById('btnCloseAddStudents');
         const btnCancelAddStudents = document.getElementById('btnCancelAddStudents');
-        const asCourseSelect = document.getElementById('asCourseSelect');
+        const asCourseCodeSelect = document.getElementById('asCourseCodeSelect');
+        const asSectionSelect = document.getElementById('asSectionSelect');
         const asTermSelect = document.getElementById('asTermSelect');
         const asSchoolYear = document.getElementById('asSchoolYear');
         const asStudentSearch = document.getElementById('asStudentSearch');
         const asSearchResults = document.getElementById('asSearchResults');
         const asShowNewStudentForm = document.getElementById('asShowNewStudentForm');
-        const asNewStudentForm = document.getElementById('asNewStudentForm');
+        const newStudentModal = document.getElementById('newStudentModal');
+        const btnCloseNewStudent = document.getElementById('btnCloseNewStudent');
         const asAddNewStudentBtn = document.getElementById('asAddNewStudentBtn');
         const asCancelNewStudentBtn = document.getElementById('asCancelNewStudentBtn');
+        const newStudentForm = document.getElementById('newStudentForm');
         const asSelectedList = document.getElementById('asSelectedList');
         const btnSubmitAddStudents = document.getElementById('btnSubmitAddStudents');
         const selectedStudents = [];
+        let availableCourses = Array.isArray(window.studentCourseOptions) ? window.studentCourseOptions : [];
 
         let activeRow = null;
+
+        function populateCourseOptions(courses) {
+            availableCourses = courses;
+            const courseCodes = [...new Set(availableCourses.map((course) => course.courseCode))];
+
+            if (asCourseCodeSelect) {
+                asCourseCodeSelect.innerHTML = '<option value="">Select course code...</option>';
+                courseCodes.forEach((courseCode) => {
+                    const option = document.createElement('option');
+                    option.value = courseCode;
+                    option.textContent = courseCode;
+                    asCourseCodeSelect.appendChild(option);
+                });
+            }
+
+            if (filterCourse) {
+                filterCourse.innerHTML = '<option value="ALL">All Course Codes</option>';
+                courseCodes.forEach((courseCode) => {
+                    const option = document.createElement('option');
+                    option.value = courseCode;
+                    option.textContent = courseCode;
+                    filterCourse.appendChild(option);
+                });
+            }
+
+            if (filterSection) {
+                const sections = [...new Set(availableCourses.map((course) => course.section))];
+                filterSection.innerHTML = '<option value="ALL">All Sections</option>';
+                sections.forEach((section) => {
+                    const option = document.createElement('option');
+                    option.value = section;
+                    option.textContent = section;
+                    filterSection.appendChild(option);
+                });
+            }
+        }
+
+        async function loadCourseOptions() {
+            const response = await fetch('/students/api/form-options');
+            const responseText = await response.text();
+            let options = {};
+
+            try {
+                options = responseText ? JSON.parse(responseText) : {};
+            } catch {
+                throw new Error(`Form options request failed with HTTP ${response.status}. Restart the server and try again.`);
+            }
+
+            if (!response.ok) throw new Error(options.error || 'Unable to load form options.');
+
+            const fetchedCourses = Array.isArray(options.courses) ? options.courses : [];
+            populateCourseOptions(fetchedCourses.length ? fetchedCourses : availableCourses);
+
+            if (asSectionSelect) {
+                asSectionSelect.innerHTML = '<option value="">Select section...</option>';
+                asSectionSelect.disabled = true;
+            }
+
+            if (asTermSelect) {
+                asTermSelect.innerHTML = '<option value="">Select term...</option>';
+            }
+            if (asSchoolYear) {
+                asSchoolYear.innerHTML = '<option value="">Select school year...</option>';
+                asSchoolYear.disabled = true;
+            }
+        }
 
         async function openAddStudentModal() {
             if (!addStudentsModal) return;
@@ -59,42 +129,106 @@
             addStudentsModal.setAttribute('aria-hidden', 'false');
 
             try {
-                const response = await fetch('/students/api/form-options');
-                const responseText = await response.text();
-                let options = {};
-
-                try {
-                    options = responseText ? JSON.parse(responseText) : {};
-                } catch {
-                    throw new Error(`Form options request failed with HTTP ${response.status}. Restart the server and try again.`);
-                }
-
-                if (!response.ok) throw new Error(options.error || 'Unable to load form options.');
-
-                asCourseSelect.innerHTML = '<option value="">Select a course...</option>';
-                options.courses.forEach((course) => {
-                    const option = document.createElement('option');
-                    option.value = course._id;
-                    option.textContent = course.label;
-                    asCourseSelect.appendChild(option);
-                });
-
-                asTermSelect.innerHTML = '<option value="">Select term...</option>';
-                options.terms.forEach((term) => {
-                    const option = document.createElement('option');
-                    option.value = term;
-                    option.textContent = term;
-                    asTermSelect.appendChild(option);
-                });
+                await loadCourseOptions();
             } catch (error) {
                 window.alert(error.message);
             }
+        }
+
+        loadCourseOptions().catch((error) => {
+            console.error('Unable to load course options:', error);
+        });
+
+        asCourseCodeSelect?.addEventListener('change', () => {
+            const sections = availableCourses
+                .filter((course) => course.courseCode === asCourseCodeSelect.value)
+                .map((course) => course.section);
+            asSectionSelect.innerHTML = '<option value="">Select section...</option>';
+            [...new Set(sections)].forEach((section) => {
+                const option = document.createElement('option');
+                option.value = section;
+                option.textContent = section;
+                asSectionSelect.appendChild(option);
+            });
+            asSectionSelect.disabled = sections.length === 0;
+            asTermSelect.innerHTML = '<option value="">Select term...</option>';
+            asTermSelect.disabled = true;
+            asSchoolYear.innerHTML = '<option value="">Select school year...</option>';
+            asSchoolYear.disabled = true;
+        });
+
+        asSectionSelect?.addEventListener('change', () => {
+            const selectedCourse = availableCourses.find((course) =>
+                course.courseCode === asCourseCodeSelect.value && course.section === asSectionSelect.value
+            );
+            const offerings = selectedCourse?.offerings || [];
+            const years = [...new Set(offerings.map((offering) => offering.schoolYear))];
+            asSchoolYear.innerHTML = '<option value="">Select school year...</option>';
+            years.forEach((year) => {
+                const option = document.createElement('option');
+                option.value = year;
+                option.textContent = year;
+                asSchoolYear.appendChild(option);
+            });
+            asSchoolYear.disabled = years.length === 0;
+            asTermSelect.innerHTML = '<option value="">Select term...</option>';
+            asTermSelect.disabled = true;
+        });
+
+        asSchoolYear?.addEventListener('change', () => {
+            const selectedCourse = availableCourses.find((course) =>
+                course.courseCode === asCourseCodeSelect.value && course.section === asSectionSelect.value
+            );
+            const years = (selectedCourse?.offerings || [])
+                .filter((offering) => offering.schoolYear === asSchoolYear.value)
+                .map((offering) => offering.term);
+            asTermSelect.innerHTML = '<option value="">Select term...</option>';
+            [...new Set(years)].forEach((term) => {
+                const option = document.createElement('option');
+                option.value = term;
+                option.textContent = term;
+                asTermSelect.appendChild(option);
+            });
+            asTermSelect.disabled = years.length === 0;
+        });
+
+        filterCourse?.addEventListener('change', () => {
+            const matchingCourses = filterCourse.value === 'ALL'
+                ? availableCourses
+                : availableCourses.filter((course) => course.courseCode === filterCourse.value);
+            const sections = [...new Set(matchingCourses.map((course) => course.section))];
+            filterSection.innerHTML = '<option value="ALL">All Sections</option>';
+            sections.forEach((section) => {
+                const option = document.createElement('option');
+                option.value = section;
+                option.textContent = section;
+                filterSection.appendChild(option);
+            });
+            filterSection.value = 'ALL';
+        });
+
+        function resetAddStudentForm() {
+            selectedStudents.length = 0;
+            renderSelectedStudents();
+            asCourseCodeSelect.value = '';
+            asSectionSelect.innerHTML = '<option value="">Select section...</option>';
+            asSectionSelect.disabled = true;
+            asTermSelect.value = '';
+            asTermSelect.disabled = true;
+            asSchoolYear.value = '';
+            asSchoolYear.innerHTML = '<option value="">Select school year...</option>';
+            asSchoolYear.disabled = true;
+            asStudentSearch.value = '';
+            asSearchResults.innerHTML = '';
+            asSearchResults.style.display = 'none';
+            resetNewStudentForm();
         }
 
         function closeAddStudentModal() {
             if (!addStudentsModal) return;
             addStudentsModal.style.display = 'none';
             addStudentsModal.setAttribute('aria-hidden', 'true');
+            resetAddStudentForm();
         }
 
         function renderSelectedStudents() {
@@ -128,21 +262,41 @@
         });
 
         asShowNewStudentForm?.addEventListener('click', () => {
-            asNewStudentForm.style.display = 'block';
+            newStudentModal.style.display = 'flex';
+            newStudentModal.setAttribute('aria-hidden', 'false');
         });
 
-        asCancelNewStudentBtn?.addEventListener('click', () => {
-            asNewStudentForm.style.display = 'none';
-        });
+        function resetNewStudentForm() {
+            ['asNewStudentId', 'asNewSurname', 'asNewFirstName', 'asNewMiddleName'].forEach((id) => {
+                document.getElementById(id).value = '';
+            });
+            document.getElementById('asNewProgram').value = '';
+        }
 
-        asAddNewStudentBtn?.addEventListener('click', () => {
-            addStudentToSelection({
+        function closeNewStudentModal() {
+            newStudentModal.style.display = 'none';
+            newStudentModal.setAttribute('aria-hidden', 'true');
+            resetNewStudentForm();
+        }
+
+        btnCloseNewStudent?.addEventListener('click', closeNewStudentModal);
+        asCancelNewStudentBtn?.addEventListener('click', closeNewStudentModal);
+
+        newStudentForm?.addEventListener('submit', (event) => {
+            event.preventDefault();
+            const student = {
                 studentId: document.getElementById('asNewStudentId').value,
                 firstName: document.getElementById('asNewFirstName').value.trim(),
                 surname: document.getElementById('asNewSurname').value.trim(),
                 middleName: document.getElementById('asNewMiddleName').value.trim(),
                 program: document.getElementById('asNewProgram').value
-            });
+            };
+            if (!/^\d{1,10}$/.test(student.studentId) || !student.firstName || !student.surname || !student.program) {
+                window.alert('Student ID, first name, surname, and program are required.');
+                return;
+            }
+            addStudentToSelection(student);
+            closeNewStudentModal();
         });
 
         asStudentSearch?.addEventListener('input', async () => {
@@ -167,7 +321,10 @@
         });
 
         btnSubmitAddStudents?.addEventListener('click', async () => {
-            if (!asCourseSelect.value || !asTermSelect.value || !/^\d{4}-\d{4}$/.test(asSchoolYear.value.trim())) {
+            const selectedCourse = availableCourses.find((course) =>
+                course.courseCode === asCourseCodeSelect.value && course.section === asSectionSelect.value
+            );
+            if (!selectedCourse || !asTermSelect.value || !/^\d{4}-\d{4}$/.test(asSchoolYear.value.trim())) {
                 window.alert('Select a course, term, and valid school year first.');
                 return;
             }
@@ -180,7 +337,7 @@
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({
-                    courseId: asCourseSelect.value,
+                    courseId: selectedCourse._id,
                     term: asTermSelect.value,
                     schoolYear: asSchoolYear.value.trim(),
                     students: selectedStudents
@@ -200,14 +357,14 @@
         if (filterBtn && filterDropdown) {
             filterBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
-                const isVisible = filterDropdown.style.display === 'block';
-                filterDropdown.style.display = isVisible ? 'none' : 'block';
+                const isVisible = filterDropdown.classList.contains('is-open');
+                filterDropdown.classList.toggle('is-open', !isVisible);
                 filterBtn.setAttribute('aria-expanded', !isVisible);
             });
 
             if (btnCloseFilter) {
                 btnCloseFilter.addEventListener('click', () => {
-                    filterDropdown.style.display = 'none';
+                    filterDropdown.classList.remove('is-open');
                     filterBtn.setAttribute('aria-expanded', 'false');
                 });
             }
@@ -215,7 +372,7 @@
             // Close dropdown when clicking outside
             document.addEventListener('click', (e) => {
                 if (!filterDropdown.contains(e.target) && !filterBtn.contains(e.target)) {
-                    filterDropdown.style.display = 'none';
+                    filterDropdown.classList.remove('is-open');
                     filterBtn.setAttribute('aria-expanded', 'false');
                 }
             });
@@ -225,7 +382,7 @@
         if (btnApplyFilter) {
             btnApplyFilter.addEventListener('click', () => {
                 applyFilters();
-                filterDropdown.style.display = 'none';
+                filterDropdown.classList.remove('is-open');
                 filterBtn.setAttribute('aria-expanded', 'false');
             });
         }
@@ -301,18 +458,34 @@
         }
 
         if (btnSaveStatus) {
-            btnSaveStatus.addEventListener('click', () => {
+            btnSaveStatus.addEventListener('click', async () => {
                 const selectedRadio = document.querySelector('input[name="statusOption"]:checked');
                 if (selectedRadio && activeRow) {
                     const newStatus = selectedRadio.value;
-                    const badgeSpan = activeRow.querySelector('.status-badge');
+                    const examRecordId = activeRow.dataset.examrecordid;
+                    const studentId = activeRow.dataset.studentobjectid;
 
-                    if (badgeSpan) {
-                        badgeSpan.textContent = newStatus;
-                        badgeSpan.className = `status-badge ${newStatus === 'P' ? 'passed' : 'completion'}`;
+                    try {
+                        const response = await fetch(`/courses/api/${examRecordId}/roster/${studentId}`, {
+                            method: 'PATCH',
+                            headers: {'Content-Type': 'application/json'},
+                            body: JSON.stringify({status: newStatus})
+                        });
+                        const result = await response.json().catch(() => ({}));
+                        if (!response.ok) {
+                            throw new Error(result.error || 'Unable to update roster status.');
+                        }
+
+                        const badgeSpan = activeRow.querySelector('.status-badge');
+                        if (badgeSpan) {
+                            badgeSpan.textContent = newStatus;
+                            badgeSpan.className = `status-badge ${newStatus === 'P' ? 'passed' : 'completion'}`;
+                        }
+                        closeModal();
+                    } catch (error) {
+                        window.alert(error.message);
                     }
                 }
-                closeModal();
             });
         }
 
@@ -368,7 +541,7 @@
             const filterDropdown = document.getElementById('filterDropdown');
             if (!filterDropdown) return;
             
-            const isHidden = filterDropdown.style.display === 'none' || filterDropdown.style.display === '';
-            filterDropdown.style.display = isHidden ? 'block' : 'none';
+            const isHidden = !filterDropdown.classList.contains('is-open');
+            filterDropdown.classList.toggle('is-open', isHidden);
         }
     });

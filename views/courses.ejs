@@ -6,6 +6,7 @@
 	<title><%= selectedExamRecord ? 'Exam Roster' : 'Exit Examinations' %> - Exit Exam Tracker</title>
 	<link rel="stylesheet" href="/css/variables.css">
 	<link rel="stylesheet" href="/css/courses.css">
+	<link rel="stylesheet" href="/css/forms.css">
 </head>
 <body>
 	<%- include('menuBar') %>
@@ -89,7 +90,7 @@
 						<h2 id="rosterUpdateTitle" class="modal-title">Update Status</h2>
 						<p id="rosterUpdateMessage" class="modal-message"></p>
 						<div id="rosterUpdateOptions" class="status-options"></div>
-						<div class="modal-actions"><button class="btn btn-secondary close-roster-update" type="button">Cancel</button><button class="btn btn-primary" id="saveRosterUpdate" type="button">Save</button></div>
+						<div class="modal-actions"><button class="button button-secondary close-roster-update" type="button">Cancel</button><button class="button button-primary" id="saveRosterUpdate" type="button">Save</button></div>
 					</div>
 				</div>
 			</section>

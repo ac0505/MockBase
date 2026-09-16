@@ -10,6 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,400,0,0" rel="stylesheet">
     <link rel="stylesheet" href="/css/variables.css">
     <link rel="stylesheet" href="/css/students.css">
+    <link rel="stylesheet" href="/css/forms.css">
 </head>
 <body>
     <%- include('menuBar') %>
@@ -50,7 +51,7 @@
                 </button>
 
                 <!-- Filter Dropdown Popover -->
-                <div id="filterDropdown" class="filter-dropdown" style="display: none;">
+                <div id="filterDropdown" class="filter-dropdown">
                     <div class="filter-header">
                         <span class="filter-title">Filter Students</span>
                         <button type="button" id="btnCloseFilter" class="filter-close-btn" aria-label="Close filter">&times;</button>
@@ -178,30 +179,41 @@
     </div>
 
     <!-- Add Students Modal -->
-    <div id="addStudentsModal" class="modal-backdrop" aria-hidden="true" style="display: none;">
-        <div class="modal-card add-students-card" role="dialog" aria-labelledby="addStudentsTitle">
+    <div id="addStudentsModal" class="course-modal" aria-hidden="true" style="display: none;">
+        <div class="course-modal-card add-students-card" role="dialog" aria-modal="true" aria-labelledby="addStudentsTitle">
             <div class="modal-header-row">
-                <h2 id="addStudentsTitle" class="modal-title">Add Students</h2>
-                <button type="button" class="filter-close-btn" id="btnCloseAddStudents" aria-label="Close">&times;</button>
+                <h2 id="addStudentsTitle">Add Students</h2>
+                <button class="icon-button" id="btnCloseAddStudents" type="button" aria-label="Close">&times;</button>
             </div>
 
             <div class="add-students-body">
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="asCourseSelect" class="filter-label">Course</label>
-                        <select id="asCourseSelect" class="filter-select">
-                            <option value="">Select a course...</option>
+                        <label for="asCourseCodeSelect" class="filter-label">Course Code</label>
+                        <select id="asCourseCodeSelect" class="filter-select">
+                            <option value="">Select course code...</option>
+                            <% [...new Set((locals.courseOptions || []).map((course) => course.courseCode))].forEach((courseCode) => { %>
+                                <option value="<%= courseCode %>"><%= courseCode %></option>
+                            <% }); %>
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="asTermSelect" class="filter-label">Term</label>
-                        <select id="asTermSelect" class="filter-select">
-                            <option value="">Select term...</option>
+                        <label for="asSectionSelect" class="filter-label">Section</label>
+                        <select id="asSectionSelect" class="filter-select" disabled>
+                            <option value="">Select section...</option>
                         </select>
                     </div>
                     <div class="form-group">
                         <label for="asSchoolYear" class="filter-label">School Year</label>
-                        <input type="text" id="asSchoolYear" class="filter-select" placeholder="2025-2026">
+                        <select id="asSchoolYear" class="filter-select" disabled>
+                            <option value="">Select school year...</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="asTermSelect" class="filter-label">Term</label>
+                        <select id="asTermSelect" class="filter-select" disabled>
+                            <option value="">Select term...</option>
+                        </select>
                     </div>
                 </div>
 
@@ -216,58 +228,43 @@
                     <button type="button" id="asShowNewStudentForm" class="btn-filter-reset" style="margin-top: 8px;">+ Add new student instead</button>
                 </div>
 
-                <div id="asNewStudentForm" class="as-new-student-form" style="display: none;">
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="asNewStudentId" class="filter-label">Student ID</label>
-                            <input type="text" id="asNewStudentId" class="filter-select" inputmode="numeric" pattern="[0-9]{1,10}" maxlength="10">
-                        </div>
-                        <div class="form-group">
-                            <label for="asNewProgram" class="filter-label">Program</label>
-                            <select id="asNewProgram" class="filter-select">
-                                <option value="AR">AR</option>
-                                <option value="CE">CE</option>
-                                <option value="CHE">CHE</option>
-                                <option value="CPE">CPE</option>
-                                <option value="EE">EE</option>
-                                <option value="ECE">ECE</option>
-                                <option value="IE">IE</option>
-                                <option value="ME">ME</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="asNewSurname" class="filter-label">Surname</label>
-                            <input type="text" id="asNewSurname" class="filter-select">
-                        </div>
-                        <div class="form-group">
-                            <label for="asNewFirstName" class="filter-label">First Name</label>
-                            <input type="text" id="asNewFirstName" class="filter-select">
-                        </div>
-                        <div class="form-group">
-                            <label for="asNewMiddleName" class="filter-label">Middle Name</label>
-                            <input type="text" id="asNewMiddleName" class="filter-select">
-                        </div>
-                    </div>
-                    <div class="modal-actions" style="justify-content: flex-start; margin-top: 8px;">
-                        <button type="button" id="asAddNewStudentBtn" class="btn btn-primary" style="height: 36px; padding: 0 16px; font-size: 13px;">Add to list</button>
-                        <button type="button" id="asCancelNewStudentBtn" class="btn btn-secondary" style="height: 36px; padding: 0 16px; font-size: 13px;">Cancel</button>
-                    </div>
-                </div>
-
                 <div class="as-selected-list" id="asSelectedList">
                     <p class="as-empty-hint">No students added yet.</p>
                 </div>
             </div>
 
             <div class="modal-actions">
-                <button type="button" class="btn btn-secondary" id="btnCancelAddStudents">Cancel</button>
-                <button type="button" class="btn btn-primary" id="btnSubmitAddStudents">Add Students</button>
+                <button class="button button-secondary" type="button" id="btnCancelAddStudents">Cancel</button>
+                <button class="button button-primary" type="button" id="btnSubmitAddStudents">Add Students</button>
             </div>
         </div>
     </div>
 
+    <div id="newStudentModal" class="course-modal" aria-hidden="true" style="display: none;">
+        <div class="course-modal-card student-form-card" role="dialog" aria-modal="true" aria-labelledby="newStudentTitle">
+            <div class="modal-header-row">
+                <h2 id="newStudentTitle">Add New Student</h2>
+                <button class="icon-button" id="btnCloseNewStudent" type="button" aria-label="Close">&times;</button>
+            </div>
+            <form id="newStudentForm">
+                <div class="form-grid">
+                    <label class="field">First Name<input id="asNewFirstName" type="text" required></label>
+                    <label class="field">Student ID Number<input id="asNewStudentId" type="text" inputmode="numeric" pattern="[0-9]{1,10}" maxlength="10" required></label>
+                    <label class="field">Surname<input id="asNewSurname" type="text" required></label>
+                    <label class="field">Program<select id="asNewProgram" required><option value="">Select program...</option><option value="AR">AR</option><option value="CE">CE</option><option value="CHE">CHE</option><option value="CPE">CPE</option><option value="EE">EE</option><option value="ECE">ECE</option><option value="IE">IE</option><option value="ME">ME</option></select></label>
+                    <label class="field">Middle Name<input id="asNewMiddleName" type="text"></label>
+                </div>
+                <div class="modal-actions">
+                    <button class="button button-secondary" id="asCancelNewStudentBtn" type="button">Cancel</button>
+                    <button class="button button-primary" id="asAddNewStudentBtn" type="submit">Add to List</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        window.studentCourseOptions = <%- JSON.stringify(locals.courseOptions || []) %>;
+    </script>
     <script src="/scripts/students.js"></script>
 </body>
 </html>

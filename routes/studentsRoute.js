@@ -36,11 +36,14 @@ function escapeRegex(value) {
 // ---- Students page: flattens every ExamRecord roster entry into a table row ----
 studentsRouter.get("/", requireExamAccess, async (req, res) => {
     try {
-        const examRecords = await ExamRecord.find({})
+        const [examRecords, courses] = await Promise.all([
+            ExamRecord.find({})
             .populate({path: "course", select: "courseCode courseName section"})
             .populate({path: "roster.student", select: "studentId firstName middleName middleInitial surname program"})
             .sort({schoolYear: -1, term: 1})
-            .lean();
+            .lean(),
+            Course.find({}).select("courseCode courseName section").sort({courseCode: 1}).lean()
+        ]);
         
         const rows = [];
 
@@ -76,7 +79,14 @@ studentsRouter.get("/", requireExamAccess, async (req, res) => {
 
         rows.sort((a, b) => a.surname.localeCompare(b.surname));
         
-        return res.render("students", {students: rows});
+        const courseOptions = courses.map((course) => ({
+            ...course,
+            offerings: examRecords
+                .filter((record) => record.course && record.course._id.toString() === course._id.toString())
+                .map((record) => ({term: record.term, schoolYear: record.schoolYear}))
+        }));
+
+        return res.render("students", {students: rows, courseOptions});
     } catch (error) {
         console.error("Error fetching students:", error);
         return res.status(500).send("An error occurred while fetching students.");
@@ -90,11 +100,25 @@ studentsRouter.get("/api/form-options", requireExamAccess, async (req, res) => {
             .select("courseCode courseName section")
             .sort({ courseCode: 1 })
             .lean();
+        const examRecords = await ExamRecord.find({})
+            .select("course term schoolYear")
+            .lean();
+        const recordsByCourse = new Map();
+
+        for (const record of examRecords) {
+            if (!record.course) continue;
+            const courseRecords = recordsByCourse.get(record.course.toString()) || [];
+            courseRecords.push({term: record.term, schoolYear: record.schoolYear});
+            recordsByCourse.set(record.course.toString(), courseRecords);
+        }
 
         return res.json({
             courses: courses.map((c) => ({
                 _id: c._id,
-                label: `${c.courseCode} — ${c.courseName} (${c.section})`
+                courseCode: c.courseCode,
+                courseName: c.courseName,
+                section: c.section,
+                offerings: recordsByCourse.get(c._id.toString()) || []
             })),
             terms: TERM_ORDER
         });
