@@ -8,11 +8,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const stagedRosterBody = document.getElementById('stagedRosterBody');
     const courseFormMessage = document.getElementById('courseFormMessage');
     const studentFormMessage = document.getElementById('studentFormMessage');
+    const courseStudentFile = document.getElementById('courseStudentFile');
+    const rosterStudentFile = document.getElementById('rosterStudentFile');
     const stagedStudents = [];
+    let uploadedRosterStudents = [];
 
     document.querySelectorAll('input[name="studentId"]').forEach((input) => {
         input.addEventListener('input', () => {
-            input.value = input.value.replace(/\D/g, '').slice(0, 10);
+            input.value = input.value.replace(/[^A-Za-z0-9-]/g, '').slice(0, 20);
         });
     });
     const editRosterButton = document.getElementById('editRosterButton');
@@ -29,6 +32,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function showMessage(element, message = '') {
         if (element) element.textContent = message;
+    }
+
+    async function parseStudentFile(file) {
+        const formData = new FormData();
+        formData.append('file', file);
+        const response = await fetch('/courses/api/parse-students', { method: 'POST', body: formData });
+        const result = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(result.error || 'Unable to read the student file.');
+        return result.students || [];
+    }
+
+    function appendStudents(target, students) {
+        const identity = (student) => [student.surname, student.firstName, student.middleName].map((value) => String(value || '').trim().replace(/\s+/g, ' ').toLowerCase()).join('|');
+        const existingIds = new Set(target.map((student) => String(student.studentId).trim()));
+        const existingNames = new Set(target.map(identity));
+        for (const student of students) {
+            if (existingIds.has(String(student.studentId).trim()) || existingNames.has(identity(student))) {
+                throw new Error(`Duplicate student in the list: ${student.firstName} ${student.surname}.`);
+            }
+            target.push(student);
+            existingIds.add(String(student.studentId).trim());
+            existingNames.add(identity(student));
+        }
     }
 
     function renderStagedStudents() {
@@ -97,8 +123,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
         stagedStudents.push(values);
         renderStagedStudents();
-        addStudentButton.textContent = 'View Student Roster';
         setModalVisibility(addStudentModal, false);
+    });
+
+    courseStudentFile?.addEventListener('change', async () => {
+        if (!courseStudentFile.files[0]) return;
+        try {
+            appendStudents(stagedStudents, await parseStudentFile(courseStudentFile.files[0]));
+            renderStagedStudents();
+            showMessage(courseFormMessage, `${stagedStudents.length} students staged.`);
+        } catch (error) {
+            showMessage(courseFormMessage, error.message);
+        } finally {
+            courseStudentFile.value = '';
+        }
     });
 
     stagedRosterBody?.addEventListener('click', (event) => {
@@ -115,14 +153,21 @@ document.addEventListener('DOMContentLoaded', () => {
         const formValues = Object.fromEntries(new FormData(createCourseForm).entries());
 
         try {
-            const response = await fetch('/courses/api/create-course', {
+            const submitCourse = (confirmExisting = false) => fetch('/courses/api/create-course', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ ...formValues, students: stagedStudents })
+                body: JSON.stringify({ ...formValues, students: stagedStudents, confirmExisting })
             });
+            let response = await submitCourse();
             const responseText = await response.text();
             let result = {};
             try { result = responseText ? JSON.parse(responseText) : {}; } catch { throw new Error(`Create course failed with HTTP ${response.status}.`); }
+            if (response.status === 409 && result.requiresConfirmation) {
+                const existing = result.existingStudents.map((student) => `${student.firstName} ${student.surname} (${student.studentId})`).join(', ');
+                if (!window.confirm(`These students already exist: ${existing}. Add them together with the new students?`)) return;
+                response = await submitCourse(true);
+                result = await response.json().catch(() => ({}));
+            }
             if (!response.ok) throw new Error(result.error || 'Unable to create course.');
             window.location.href = '/courses';
         } catch (error) {
@@ -145,6 +190,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     editRosterButton?.addEventListener('click', () => {
+        uploadedRosterStudents = [];
+        if (rosterAddStudentForm) rosterAddStudentForm.noValidate = false;
         rosterAddStudentForm?.reset();
         showMessage(rosterAddMessage);
         setModalVisibility(rosterAddStudentModal, true);
@@ -156,27 +203,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
     rosterAddStudentForm?.addEventListener('submit', async (event) => {
         event.preventDefault();
-        const values = Object.fromEntries(new FormData(rosterAddStudentForm).entries());
         const examRecordId = editRosterButton.dataset.examRecordId;
-        values.studentId = values.studentId.replace(/\D/g, '').slice(0, 10);
-        if (!/^\d{1,10}$/.test(values.studentId)) {
-            showMessage(rosterAddMessage, 'Student ID must contain 1 to 10 digits.');
+        const values = Object.fromEntries(new FormData(rosterAddStudentForm).entries());
+        const studentsToAdd = uploadedRosterStudents.length ? uploadedRosterStudents : [{ ...values }];
+        values.studentId = (values.studentId || '').replace(/[^A-Za-z0-9-]/g, '').slice(0, 20);
+        if (!uploadedRosterStudents.length && !/^[A-Za-z0-9-]{1,20}$/.test(values.studentId)) {
+            showMessage(rosterAddMessage, 'Student ID must contain 1 to 20 letters, numbers, or hyphens.');
             return;
         }
         const visibleStudentIds = [...document.querySelectorAll('.student-roster-row')]
             .map((row) => row.dataset.studentNumber.toLowerCase());
 
-        if (visibleStudentIds.includes(values.studentId.trim().toLowerCase())) {
+        if (!uploadedRosterStudents.length && visibleStudentIds.includes(values.studentId.trim().toLowerCase())) {
             showMessage(rosterAddMessage, 'This student is already in the roster.');
             return;
         }
 
         try {
-            const response = await fetch(`/courses/api/${examRecordId}/roster`, {
+            const submitRoster = (confirmExisting = false) => fetch(`/courses/api/${examRecordId}/roster`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ students: [{ ...values, studentId: values.studentId.trim() }] })
+                body: JSON.stringify({ students: studentsToAdd.map((student) => ({ ...student, studentId: String(student.studentId).trim() })), confirmExisting })
             });
+            let response = await submitRoster();
             const responseText = await response.text();
             let result = {};
             try {
@@ -184,10 +233,30 @@ document.addEventListener('DOMContentLoaded', () => {
             } catch {
                 throw new Error(`Unable to add student (HTTP ${response.status}). Please refresh and sign in again.`);
             }
+            if (response.status === 409 && result.requiresConfirmation) {
+                const existing = result.existingStudents.map((student) => `${student.firstName} ${student.surname} (${student.studentId})`).join(', ');
+                if (!window.confirm(`These students already exist: ${existing}. Add them together with the new students?`)) return;
+                response = await submitRoster(true);
+                result = await response.json().catch(() => ({}));
+            }
             if (!response.ok) throw new Error(result.error || `Unable to add student (HTTP ${response.status}).`);
             window.location.reload();
         } catch (error) {
             showMessage(rosterAddMessage, error.message);
+        }
+    });
+
+    rosterStudentFile?.addEventListener('change', async () => {
+        if (!rosterStudentFile.files[0]) return;
+        try {
+            uploadedRosterStudents = await parseStudentFile(rosterStudentFile.files[0]);
+            rosterAddStudentForm.noValidate = true;
+            showMessage(rosterAddMessage, `${uploadedRosterStudents.length} students ready to add.`);
+        } catch (error) {
+            uploadedRosterStudents = [];
+            showMessage(rosterAddMessage, error.message);
+        } finally {
+            rosterStudentFile.value = '';
         }
     });
 

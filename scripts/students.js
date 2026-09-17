@@ -20,7 +20,7 @@
 
         if (newStudentIdInput) {
             newStudentIdInput.addEventListener('input', () => {
-                newStudentIdInput.value = newStudentIdInput.value.replace(/\D/g, '').slice(0, 10);
+                newStudentIdInput.value = newStudentIdInput.value.replace(/[^A-Za-z0-9-]/g, '').slice(0, 20);
             });
         }
 
@@ -50,6 +50,7 @@
         const asCancelNewStudentBtn = document.getElementById('asCancelNewStudentBtn');
         const newStudentForm = document.getElementById('newStudentForm');
         const asSelectedList = document.getElementById('asSelectedList');
+        const asStudentFile = document.getElementById('asStudentFile');
         const btnSubmitAddStudents = document.getElementById('btnSubmitAddStudents');
         const selectedStudents = [];
         let availableCourses = Array.isArray(window.studentCourseOptions) ? window.studentCourseOptions : [];
@@ -254,6 +255,22 @@
             asSearchResults.style.display = 'none';
         }
 
+        asStudentFile?.addEventListener('change', async () => {
+            if (!asStudentFile.files[0]) return;
+            try {
+                const formData = new FormData();
+                formData.append('file', asStudentFile.files[0]);
+                const response = await fetch('/courses/api/parse-students', { method: 'POST', body: formData });
+                const result = await response.json().catch(() => ({}));
+                if (!response.ok) throw new Error(result.error || 'Unable to read the student file.');
+                (result.students || []).forEach(addStudentToSelection);
+            } catch (error) {
+                window.alert(error.message);
+            } finally {
+                asStudentFile.value = '';
+            }
+        });
+
         asSelectedList?.addEventListener('click', (event) => {
             const removeButton = event.target.closest('.as-remove-student');
             if (!removeButton) return;
@@ -291,8 +308,8 @@
                 middleName: document.getElementById('asNewMiddleName').value.trim(),
                 program: document.getElementById('asNewProgram').value
             };
-            if (!/^\d{1,10}$/.test(student.studentId) || !student.firstName || !student.surname || !student.program) {
-                window.alert('Student ID, first name, surname, and program are required.');
+            if (!/^[A-Za-z0-9-]{1,20}$/.test(student.studentId) || !student.firstName || !student.surname || !student.program) {
+                window.alert('Student ID, first name, last name, and program are required.');
                 return;
             }
             addStudentToSelection(student);
@@ -333,17 +350,25 @@
                 return;
             }
 
-            const response = await fetch('/students/api/add-to-roster', {
+            const submitStudents = (confirmExisting = false) => fetch('/students/api/add-to-roster', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({
                     courseId: selectedCourse._id,
                     term: asTermSelect.value,
                     schoolYear: asSchoolYear.value.trim(),
-                    students: selectedStudents
+                    students: selectedStudents,
+                    confirmExisting
                 })
             });
-            const result = await response.json().catch(() => ({}));
+            let response = await submitStudents();
+            let result = await response.json().catch(() => ({}));
+            if (response.status === 409 && result.requiresConfirmation) {
+                const existing = result.existingStudents.map((student) => `${student.firstName} ${student.surname} (${student.studentId})`).join(', ');
+                if (!window.confirm(`These students already exist: ${existing}. Add them together with the new students?`)) return;
+                response = await submitStudents(true);
+                result = await response.json().catch(() => ({}));
+            }
             if (!response.ok) {
                 window.alert(result.error || 'Unable to add students right now.');
                 return;

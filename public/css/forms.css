@@ -93,9 +93,11 @@
 }
 
 .field input,
-.field select {
-    background: var(--text-box-bg);
-    border: 1px solid transparent;
+.field select,
+.filter-toolbar input,
+.filter-toolbar select {
+    background: var(--color-white);
+    border: 1px solid var(--border-gray);
     border-radius: 10px;
     color: var(--color-charcoal);
     display: block;
@@ -105,13 +107,17 @@
     outline: none;
     padding: 0 12px;
     width: 100%;
+    box-shadow: none;
 }
 
 .field input:focus,
-.field select:focus {
+.field select:focus,
+.filter-toolbar input:focus,
+.filter-toolbar select:focus {
     background: var(--color-white);
-    border-color: var(--color-mapua-blue);
-    box-shadow: 0 0 0 3px rgba(0, 36, 85, .1);
+    border-color: var(--border-gray);
+    box-shadow: none;
+    outline: none;
 }
 
 .field select {

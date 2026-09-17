@@ -39,7 +39,7 @@
 						<thead>
 							<tr>
 								<th scope="col">Student Number</th>
-								<th scope="col">Surname</th>
+								<th scope="col">Last Name</th>
 								<th scope="col">First Name/M.I.</th>
 								<th scope="col">Program</th>
 								<th scope="col">Status</th>
@@ -74,14 +74,14 @@
 				<div id="studentInfoModal" class="course-modal" aria-hidden="true" hidden>
 					<div class="course-modal-card student-info-card" role="dialog" aria-modal="true" aria-labelledby="studentInfoTitle">
 						<div class="modal-header-row"><h2 id="studentInfoTitle">Student Information</h2><button class="icon-button close-student-info" type="button" aria-label="Close">&times;</button></div>
-						<dl class="student-info-list"><div><dt>Student ID</dt><dd id="infoStudentNumber"></dd></div><div><dt>First Name</dt><dd id="infoFirstName"></dd></div><div><dt>Middle Name</dt><dd id="infoMiddleName"></dd></div><div><dt>Surname</dt><dd id="infoSurname"></dd></div><div><dt>Program</dt><dd id="infoProgram"></dd></div></dl>
+						<dl class="student-info-list"><div><dt>Student ID</dt><dd id="infoStudentNumber"></dd></div><div><dt>First Name</dt><dd id="infoFirstName"></dd></div><div><dt>Middle Name</dt><dd id="infoMiddleName"></dd></div><div><dt>Last Name</dt><dd id="infoSurname"></dd></div><div><dt>Program</dt><dd id="infoProgram"></dd></div></dl>
 					</div>
 				</div>
 
 				<div id="rosterAddStudentModal" class="course-modal" aria-hidden="true" hidden>
 					<div class="course-modal-card student-form-card" role="dialog" aria-modal="true" aria-labelledby="rosterAddStudentTitle">
 						<div class="modal-header-row"><h2 id="rosterAddStudentTitle">Add Students</h2><button class="icon-button close-roster-add" type="button" aria-label="Close">&times;</button></div>
-						<form id="rosterAddStudentForm"><div class="form-grid"><label class="field">First Name<input name="firstName" required></label><label class="field">Student ID Number<input name="studentId" type="text" inputmode="numeric" pattern="[0-9]{1,10}" maxlength="10" required></label><label class="field">Surname<input name="surname" required></label><label class="field">Program<select name="program" required><option value="">Select program...</option><option>AR</option><option>CE</option><option>CHE</option><option>CPE</option><option>EE</option><option>ECE</option><option>IE</option><option>ME</option></select></label><label class="field">Middle Name<input name="middleName"></label></div><p id="rosterAddMessage" class="form-message" role="alert"></p><div class="modal-actions"><button class="button button-secondary close-roster-add" type="button">Cancel</button><button class="button button-primary" type="submit">Add to Roster</button></div></form>
+						<form id="rosterAddStudentForm"><div class="form-grid"><label class="field">First Name<input name="firstName" required></label><label class="field">Student ID Number<input name="studentId" type="text" inputmode="text" pattern="[A-Za-z0-9-]{1,20}" maxlength="20" required></label><label class="field">Last Name<input name="surname" required></label><label class="field">Program<select name="program" required><option value="">Select program...</option><option>AR</option><option>CE</option><option>CHE</option><option>CPE</option><option>EE</option><option>ECE</option><option>IE</option><option>ME</option></select></label><label class="field">Middle Name<input name="middleName"></label></div><label class="field">Upload CSV or Excel file<input id="rosterStudentFile" type="file" accept=".csv,.xls,.xlsx,.xlsm"></label><p id="rosterAddMessage" class="form-message" role="alert"></p><div class="modal-actions"><button class="button button-secondary close-roster-add" type="button">Cancel</button><button class="button button-primary" type="submit">Add to Roster</button></div></form>
 					</div>
 				</div>
 
@@ -199,9 +199,10 @@
 					<div class="roster-preview-header">
 						<strong>Students</strong>
 						<button class="text-action" id="openAddStudentButton" type="button">+ Add Students</button>
+						<label class="text-action" for="courseStudentFile">Upload CSV/Excel</label><input id="courseStudentFile" type="file" accept=".csv,.xls,.xlsx,.xlsm" hidden>
 					</div>
 					<div class="staged-roster-shell">
-						<table class="exam-table staged-roster-table"><thead><tr><th>First Name</th><th>Surname</th><th>Student ID</th><th>Program</th><th></th></tr></thead><tbody id="stagedRosterBody"><tr id="stagedRosterEmpty"><td class="empty-cell" colspan="5">No students added yet.</td></tr></tbody></table>
+						<table class="exam-table staged-roster-table"><thead><tr><th>First Name</th><th>Last Name</th><th>Student ID</th><th>Program</th><th></th></tr></thead><tbody id="stagedRosterBody"><tr id="stagedRosterEmpty"><td class="empty-cell" colspan="5">No students added yet.</td></tr></tbody></table>
 					</div>
 					<p id="courseFormMessage" class="form-message" role="alert"></p>
 					<div class="modal-actions"><button class="button button-secondary close-course-modal" type="button">Cancel</button><button class="button button-primary" type="submit">Save</button></div>
@@ -213,7 +214,7 @@
 			<div class="course-modal-card student-form-card" role="dialog" aria-modal="true" aria-labelledby="addStudentTitle">
 				<div class="modal-header-row"><h2 id="addStudentTitle">Add Students</h2><button class="icon-button close-student-modal" type="button" aria-label="Close">&times;</button></div>
 				<form id="addStudentForm">
-					<div class="form-grid"><label class="field">First Name<input name="firstName" required></label><label class="field">Student ID Number<input name="studentId" type="text" inputmode="numeric" pattern="[0-9]{1,10}" maxlength="10" required></label><label class="field">Surname<input name="surname" required></label><label class="field">Program<select name="program" required><option value="">Select program...</option><option>AR</option><option>CE</option><option>CHE</option><option>CPE</option><option>EE</option><option>ECE</option><option>IE</option><option>ME</option></select></label><label class="field">Middle Name<input name="middleName"></label></div>
+					<div class="form-grid"><label class="field">First Name<input name="firstName" required></label><label class="field">Student ID Number<input name="studentId" type="text" inputmode="text" pattern="[A-Za-z0-9-]{1,20}" maxlength="20" required></label><label class="field">Last Name<input name="surname" required></label><label class="field">Program<select name="program" required><option value="">Select program...</option><option>AR</option><option>CE</option><option>CHE</option><option>CPE</option><option>EE</option><option>ECE</option><option>IE</option><option>ME</option></select></label><label class="field">Middle Name<input name="middleName"></label></div>
 					<p id="studentFormMessage" class="form-message" role="alert"></p>
 					<div class="modal-actions"><button class="button button-secondary close-student-modal" type="button">Cancel</button><button class="button button-primary" type="submit">Add to List</button></div>
 				</form>

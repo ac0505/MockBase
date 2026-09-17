@@ -4,6 +4,7 @@ import Course from "../models/courseSchema.js";
 import ExamRecord from "../models/examRecordSchema.js";
 import Student from "../models/studentSchema.js";
 import User from "../models/userSchema.js";
+import { resolveStudentEntries, StudentImportConflictError } from "../utils/studentImport.js";
 
 const studentsRouter = express.Router();
 const AUTHORIZED_ROLES = new Set(User.schema.path("role").enumValues);
@@ -177,34 +178,7 @@ studentsRouter.post("/api/add-to-roster", requireExamAccess, async (req, res) =>
             return res.status(404).json({ error: "Selected course no longer exists." });
         }
 
-        const resolvedStudentIds = [];
-
-        for (const entry of students) {
-            if (entry && entry._id && mongoose.isValidObjectId(entry._id)) {
-                resolvedStudentIds.push(entry._id);
-                continue;
-            }
-
-            const { studentId, surname, firstName, middleName, program } = entry || {};
-            if (!/^\d{1,10}$/.test(studentId || "") || !surname || !firstName || !program) {
-                return res.status(400).json({
-                    error: "Student ID must contain 1 to 10 digits, and each new student needs a surname, first name, and program."
-                });
-            }
-
-            let student = await Student.findOne({ studentId: studentId.trim() });
-            if (!student) {
-                student = await Student.create({
-                    studentId: studentId.trim(),
-                    surname: surname.trim(),
-                    firstName: firstName.trim(),
-                    middleName: (middleName || "").trim(),
-                    program: program.trim().toUpperCase(),
-                    section: course.section
-                });
-            }
-            resolvedStudentIds.push(student._id);
-        }
+        const resolvedStudentIds = await resolveStudentEntries(students, course.section, req.body?.confirmExisting === true);
 
         let examRecord = await ExamRecord.findOne({ course: courseId, term, schoolYear });
         if (!examRecord) {
@@ -233,6 +207,9 @@ studentsRouter.post("/api/add-to-roster", requireExamAccess, async (req, res) =>
             examRecordId: examRecord._id
         });
     } catch (error) {
+        if (error instanceof StudentImportConflictError) {
+            return res.status(409).json({ error: "Some students already exist. Confirm to add the complete list.", existingStudents: error.existingStudents, newStudents: error.newStudents, requiresConfirmation: true });
+        }
         if (error.code === 11000) {
             return res.status(409).json({ error: "This exam roster already exists with a conflicting entry." });
         }

@@ -1,13 +1,16 @@
 import express from "express";
 import mongoose from "mongoose";
+import multer from "multer";
 import Course from "../models/courseSchema.js";
 import ExamRecord from "../models/examRecordSchema.js";
 import Student from "../models/studentSchema.js";
 import User from "../models/userSchema.js";
+import { parseStudentWorkbook, resolveStudentEntries, StudentImportConflictError } from "../utils/studentImport.js";
 
 const coursesRouter = express.Router();
 const AUTHORIZED_ROLES = new Set(User.schema.path("role").enumValues);
 const TERM_ORDER = ExamRecord.schema.path("term").enumValues;
+const studentUpload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 5 * 1024 * 1024 } });
 
 function singleQueryValue(value) {
     return typeof value === "string" ? value.trim() : "";
@@ -57,38 +60,6 @@ function buildListQueryString(filters) {
     return params.toString();
 }
 
-async function resolveStudents(students, course) {
-    if (!Array.isArray(students)) return [];
-
-    const resolvedStudentIds = [];
-    for (const entry of students) {
-        if (entry && entry._id && mongoose.isValidObjectId(entry._id)) {
-            resolvedStudentIds.push(entry._id);
-            continue;
-        }
-
-        const { studentId, surname, firstName, middleName, program } = entry || {};
-        if (!/^\d{1,10}$/.test(studentId || "") || !surname || !firstName || !program) {
-            throw new Error("Each student needs a student ID, surname, first name, and program.");
-        }
-
-        let student = await Student.findOne({ studentId: studentId.trim() });
-        if (!student) {
-            student = await Student.create({
-                studentId: studentId.trim(),
-                surname: surname.trim(),
-                firstName: firstName.trim(),
-                middleName: (middleName || "").trim(),
-                program: program.trim().toUpperCase(),
-                section: course.section
-            });
-        }
-        resolvedStudentIds.push(student._id);
-    }
-
-    return resolvedStudentIds;
-}
-
 async function getExamRecordWithStudent(examRecordId, studentId) {
     if (!mongoose.isValidObjectId(examRecordId) || !mongoose.isValidObjectId(studentId)) return null;
     return ExamRecord.findOne({ _id: examRecordId, "roster.student": studentId });
@@ -108,6 +79,25 @@ async function getFilterOptions() {
 
 coursesRouter.use(requireExamAccess);
 
+coursesRouter.post("/api/parse-students", (req, res, next) => {
+    studentUpload.single("file")(req, res, (error) => {
+        if (error) {
+            const message = error.code === "LIMIT_FILE_SIZE"
+                ? "The student file must be 5 MB or smaller."
+                : "Upload a CSV or Excel file using the file field.";
+            return res.status(400).json({ error: message });
+        }
+        return next();
+    });
+}, (req, res) => {
+    try {
+        if (!req.file) return res.status(400).json({ error: "Choose a CSV or Excel file first." });
+        return res.json({ students: parseStudentWorkbook(req.file.buffer, req.file.originalname) });
+    } catch (error) {
+        return res.status(400).json({ error: error.message || "Unable to read the student file." });
+    }
+});
+
 coursesRouter.post("/api/create-course", async (req, res) => {
     try {
         const { courseCode, courseName, section, term, schoolYear, students = [] } = req.body || {};
@@ -122,13 +112,13 @@ coursesRouter.post("/api/create-course", async (req, res) => {
             return res.status(400).json({ error: "Academic year must be in YYYY-YYYY format." });
         }
 
+        const studentIds = await resolveStudentEntries(students, section, req.body?.confirmExisting === true);
         const course = await Course.create({
             courseCode: courseCode.trim().toUpperCase(),
             courseName: courseName.trim(),
             section: section.trim(),
             proctor: req.authenticatedUser._id
         });
-        const studentIds = await resolveStudents(students, course);
         const uniqueStudentIds = [...new Set(studentIds.map((studentId) => studentId.toString()))];
         const examRecord = await ExamRecord.create({
             course: course._id,
@@ -139,6 +129,9 @@ coursesRouter.post("/api/create-course", async (req, res) => {
 
         return res.status(201).json({ message: "Course created successfully.", examRecordId: examRecord._id });
     } catch (error) {
+        if (error instanceof StudentImportConflictError) {
+            return res.status(409).json({ error: "Some students already exist. Confirm to add the complete list.", existingStudents: error.existingStudents, newStudents: error.newStudents, requiresConfirmation: true });
+        }
         if (error.code === 11000) {
             return res.status(409).json({ error: "A course with this course code already exists." });
         }
@@ -211,7 +204,7 @@ coursesRouter.post("/api/:examRecordId/roster", async (req, res) => {
         const course = await Course.findById(examRecord.course);
         if (!course) return res.status(404).json({ error: "Course not found." });
 
-        const studentIds = await resolveStudents(students, course);
+        const studentIds = await resolveStudentEntries(students, course.section, req.body?.confirmExisting === true);
         const existingIds = new Set(examRecord.roster.map((entry) => entry.student.toString()));
         const newIds = [...new Set(studentIds.map((studentId) => studentId.toString()))]
             .filter((studentId) => !existingIds.has(studentId));
@@ -221,6 +214,9 @@ coursesRouter.post("/api/:examRecordId/roster", async (req, res) => {
         await examRecord.save();
         return res.status(201).json({ message: "Students added to roster." });
     } catch (error) {
+        if (error instanceof StudentImportConflictError) {
+            return res.status(409).json({ error: "Some students already exist. Confirm to add the complete list.", existingStudents: error.existingStudents, newStudents: error.newStudents, requiresConfirmation: true });
+        }
         console.error("Unable to add students to roster:", error);
         return res.status(error.name === "ValidationError" ? 400 : 500).json({
             error: error.message || "Unable to add students right now."

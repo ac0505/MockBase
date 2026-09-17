@@ -34,6 +34,13 @@ const studentSchema = new mongoose.Schema(
       trim: true
     },
 
+    identityKey: {
+      type: String,
+      unique: true,
+      sparse: true,
+      select: false
+    },
+
     section: {
       type: String,
       required: true,
@@ -50,5 +57,12 @@ const studentSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+studentSchema.pre("validate", function setIdentityKey(next) {
+  this.identityKey = [this.surname, this.firstName, this.middleName]
+    .map((value) => String(value || "").trim().replace(/\s+/g, " ").toLowerCase())
+    .join("|");
+  next();
+});
 
 export default mongoose.model("Student", studentSchema);
