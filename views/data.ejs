@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Management - Exit Exam Tracker</title>
+    <link rel="stylesheet" href="/css/variables.css">
+    <link rel="stylesheet" href="/css/data.css">
+</head>
+<body>
+    <%- include('menuBar') %>
+
+    <main class="main-wrapper">
+        <header class="page-header">
+            <div>
+                <p class="eyebrow">Data Management</p>
+                <h1 class="page-title">Import & Export Data</h1>
+                <p class="page-description">Bulk import student records or download comprehensive exit exam reports.</p>
+            </div>
+        </header>
+
+        <div class="data-grid">
+            <!-- UPLOAD SECTION -->
+            <section class="data-section">
+                <div class="data-section-header">
+                    <h2 class="data-section-title">
+                        <span class="material-symbols-outlined">upload_file</span>
+                        Upload Students
+                    </h2>
+                </div>
+                <div class="data-section-body">
+                    <div id="uploadAlert" class="alert"></div>
+
+                    <form id="importForm" class="upload-form">
+                        <div class="form-group" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                            <div>
+                                <label class="form-label" for="schoolYear">School Year (Required)</label>
+                                <select id="schoolYear" name="schoolYear" class="form-select" required>
+                                    <option value="">Select School Year</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="form-label" for="term">Term (Required)</label>
+                                <select id="term" name="term" class="form-select" required disabled>
+                                    <option value="">Select Term</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                            <div><label class="form-label" for="courseId">Course (Required)</label><select id="courseId" name="courseId" class="form-select" required disabled><option value="">Select Course</option></select></div>
+                            <div><label class="form-label" for="sectionId">Section (Required)</label><select id="sectionId" name="sectionId" class="form-select" required disabled><option value="">Select Section</option></select></div>
+                        </div>
+
+                        <div id="dropzone" class="upload-dropzone">
+                            <span class="material-symbols-outlined upload-icon">cloud_upload</span>
+                            <div class="upload-text">Drag & drop a CSV or Excel file here</div>
+                            <div class="upload-subtext">or click to browse</div>
+                            <input type="file" id="fileInput" name="file" class="file-input-hidden" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel">
+                        </div>
+
+                        <div id="uploadPreview" class="upload-preview">
+                            <div class="file-details">
+                                <span id="fileName" class="file-name">filename.xlsx</span>
+                                <span id="fileSize" class="file-size">1.2 MB</span>
+                            </div>
+                            <button type="button" id="removeFileBtn" class="button-secondary" style="padding: 0.25rem 0.5rem;">Remove</button>
+                        </div>
+
+                        <button type="button" id="downloadTemplateBtn" class="button-secondary btn-full">Download Template</button>
+
+                        <button type="submit" id="importSubmitBtn" class="button-primary btn-full" style="margin-top: 1rem;" disabled>
+                            <span class="material-symbols-outlined">backup</span>
+                            Import Data
+                        </button>
+                    </form>
+                </div>
+            </section>
+
+            <!-- DOWNLOAD SECTION -->
+            <section class="data-section">
+                <div class="data-section-header">
+                    <h2 class="data-section-title">
+                        <span class="material-symbols-outlined">download</span>
+                        Download Reports
+                    </h2>
+                </div>
+                <div class="data-section-body">
+                    <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                        Export exit exam results and student statuses. Filter by term and school year to download specific reports.
+                    </p>
+
+                    <form id="exportForm" class="upload-form">
+                        <div class="form-group" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: auto;">
+                            <div>
+                                <label class="form-label" for="exportTerm">Term (Optional)</label>
+                                <select id="exportTerm" name="term" class="form-select">
+                                    <option value="">All Terms</option>
+                                    <option value="1st Term">1st Term</option>
+                                    <option value="2nd Term">2nd Term</option>
+                                    <option value="3rd Term">3rd Term</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="form-label" for="exportSchoolYear">School Year (Optional)</label>
+                                <input type="text" id="exportSchoolYear" name="schoolYear" class="form-input" placeholder="YYYY-YYYY">
+                            </div>
+                        </div>
+
+                        <div class="export-actions">
+                            <button type="button" id="exportExcelBtn" class="button-primary btn-export-excel btn-full">
+                                <span class="material-symbols-outlined">table_view</span>
+                                Download XLSX
+                            </button>
+                            <button type="button" id="exportPdfBtn" class="button-primary btn-export-pdf btn-full">
+                                <span class="material-symbols-outlined">picture_as_pdf</span>
+                                Download PDF
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </section>
+        </div>
+
+        <footer class="dev-copyright">
+            &copy; <%= new Date().getFullYear() %> Andrea Caunga. All rights reserved.
+        </footer>
+    </main>
+
+    <script src="/scripts/data.js"></script>
+</body>
+</html>

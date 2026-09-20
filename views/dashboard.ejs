@@ -1,179 +1,224 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Dashboard - Exit Exam Tracker</title>
-	<link rel="stylesheet" href="/css/variables.css">
-	<link rel="stylesheet" href="/css/dashboard.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Exit Exam Tracker</title>
+    <link rel="stylesheet" href="/css/variables.css">
+    <link rel="stylesheet" href="/css/dashboard.css">
 </head>
 <body>
-	<%- include('menuBar') %>
-	<main class="main-wrapper">
+    <%- include('menuBar') %>
 
-		<!-- ── Dashboard grid: chart left, table right ── -->
-		<% const total = totalStudents || 1; %>
-		<% const passedPct = (totalPassed / total) * 100; %>
-		<% const completionPct = (totalCompletion / total) * 100; %>
-		<% const pendingCount = totalStudents - totalPassed - totalCompletion; %>
-		<% const pendingPct = (pendingCount / total) * 100; %>
+    <main class="main-wrapper">
+        <header class="page-header" style="display: flex; justify-content: space-between; align-items: flex-start;">
+            <div>
+                <p class="eyebrow">Overview</p>
+                <h1 class="page-title">Dashboard</h1>
+                <p class="page-description">Real-time exit-exam status across all exam offerings.</p>
+            </div>
+            
+            <!-- Filter Button & Popover -->
+            <div class="filter-dropdown-container">
+                <button class="btn-filter" id="btnFilterToggle">
+                    <span class="material-symbols-outlined" style="font-size: 1.1rem;">filter_alt</span> Filter
+                </button>
+                
+                <div class="filter-popover" id="filterPopover">
+                    <div class="popover-header">
+                        <span class="popover-title">Filter Results</span>
+                        <span class="material-symbols-outlined popover-close" id="btnFilterClose">close</span>
+                    </div>
+                    <form method="GET" action="/dashboard" id="filterForm">
+                        <div class="filter-form-group">
+                            <label for="term">Term</label>
+                            <select name="term" id="term">
+                                <option value="">All Terms</option>
+                                <% terms.forEach(t => { %>
+                                    <option value="<%= t %>" <%= filters.term === t ? 'selected' : '' %>><%= t %></option>
+                                <% }) %>
+                            </select>
+                        </div>
+                        <div class="filter-form-group">
+                            <label for="schoolYear">School Year</label>
+                            <select name="schoolYear" id="schoolYear">
+                                <option value="">All School Years</option>
+                                <% schoolYears.forEach(sy => { %>
+                                    <option value="<%= sy %>" <%= filters.schoolYear === sy ? 'selected' : '' %>><%= sy %></option>
+                                <% }) %>
+                            </select>
+                        </div>
+                        <div class="popover-footer">
+                            <button type="button" class="btn-reset" onclick="window.location.href='/dashboard'">Reset</button>
+                            <button type="submit" class="button-primary">Apply</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </header>
 
-		<section class="dashboard-grid" aria-label="Summary statistics">
-			<!-- LEFT: Chart panel -->
-			<div class="chart-panel">
-				<h2 class="chart-title">Overall Distribution</h2>
-				<div class="donut-container">
-					<svg class="donut-chart" viewBox="0 0 160 160" aria-label="Pie chart: <%= totalPassed %> passed, <%= totalCompletion %> completion, <%= pendingCount %> pending">
-						<% if (totalStudents === 0) { %>
-							<circle class="donut-ring" cx="80" cy="80" r="60" />
-						<% } else { %>
-							<%
-								const R = 60;
-								const C = 2 * Math.PI * R;
-								let offset = C * 0.25;
-							%>
-							<% if (totalPassed > 0) { %>
-								<circle class="donut-segment donut-passed"
-									cx="80" cy="80" r="<%= R %>"
-									stroke-dasharray="<%= (passedPct / 100) * C %> <%= C - (passedPct / 100) * C %>"
-									stroke-dashoffset="<%= offset %>" />
-							<% } %>
-							<% offset -= (passedPct / 100) * C; %>
-							<% if (totalCompletion > 0) { %>
-								<circle class="donut-segment donut-completion"
-									cx="80" cy="80" r="<%= R %>"
-									stroke-dasharray="<%= (completionPct / 100) * C %> <%= C - (completionPct / 100) * C %>"
-									stroke-dashoffset="<%= offset %>" />
-							<% } %>
-							<% offset -= (completionPct / 100) * C; %>
-							<% if (pendingCount > 0) { %>
-								<circle class="donut-segment donut-pending"
-									cx="80" cy="80" r="<%= R %>"
-									stroke-dasharray="<%= (pendingPct / 100) * C %> <%= C - (pendingPct / 100) * C %>"
-									stroke-dashoffset="<%= offset %>" />
-							<% } %>
-						<% } %>
-					</svg>
-					<div class="donut-center-label">
-						<span class="donut-center-number"><%= totalStudents %></span>
-						<span class="donut-center-text">Total</span>
-					</div>
-				</div>
-				<ul class="chart-legend">
-					<li><span class="legend-dot legend-dot--passed"></span> Passed <strong><%= totalPassed %></strong></li>
-					<li><span class="legend-dot legend-dot--completion"></span> Completion <strong><%= totalCompletion %></strong></li>
-					<li><span class="legend-dot legend-dot--pending"></span> Pending <strong><%= pendingCount %></strong></li>
-				</ul>
-			</div>
+        <!-- No overview stats here anymore, as requested -->
 
-			<!-- RIGHT: Course table with inline filter -->
-			<div class="right-column">
-				<div class="course-breakdown">
-					<div class="section-header">
-						<h2 class="section-title">Course Breakdown</h2>
-						<span class="section-count"><%= courseRows.length %> course<%= courseRows.length === 1 ? '' : 's' %></span>
+        <div class="dashboard-content">
+            <!-- Donut Chart / Overall Distribution -->
+            <div class="data-card">
+                <div class="data-card-header">
+                    <h2 class="data-card-title">Overall Distribution</h2>
+                </div>
+                <div class="donut-container">
+                    <% 
+                        let passedDeg = totalStudents > 0 ? (totalPassed / totalStudents) * 360 : 0;
+                        let completionDeg = totalStudents > 0 ? (totalCompletion / totalStudents) * 360 : 0;
+                        let bgStyle = `conic-gradient(
+                            var(--status-passed) 0deg ${passedDeg}deg, 
+                            var(--status-completion) ${passedDeg}deg ${passedDeg + completionDeg}deg, 
+                            var(--border-light) ${passedDeg + completionDeg}deg 360deg
+                        )`;
+                    %>
+                    <div class="donut-chart" style="background: <%= bgStyle %>;">
+                        <div class="donut-inner">
+                            <span class="donut-total-val"><%= totalStudents %></span>
+                            <span class="donut-total-lbl">Total</span>
+                        </div>
+                    </div>
+                    
+                    <div class="chart-legend">
+                        <div class="legend-item">
+                            <div class="legend-label">
+                                <div class="legend-dot dot-passed"></div>
+                                <span>Passed</span>
+                            </div>
+                            <span class="legend-value"><%= totalPassed %></span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-label">
+                                <div class="legend-dot dot-completion"></div>
+                                <span>Completion</span>
+                            </div>
+                            <span class="legend-value"><%= totalCompletion %></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-						<!-- Filter button + dropdown -->
-						<div class="filter-wrapper">
-							<button class="filter-trigger" type="button" id="filterToggle">
-								<span class="material-symbols-outlined" aria-hidden="true">filter_list</span>
-								Filter
-							</button>
-							<div class="filter-dropdown" id="filterDropdown" hidden>
-								<form id="filterForm" method="get" action="/dashboard">
-									<div class="filter-dropdown-header">
-										<h3>Filter Results</h3>
-										<button class="filter-close" type="button" id="filterClose" aria-label="Close">
-											<span class="material-symbols-outlined" aria-hidden="true">close</span>
-										</button>
-									</div>
-									<div class="filter-field">
-										<label for="term">Term</label>
-										<select id="term" name="term">
-											<option value="">All Terms</option>
-											<% terms.forEach((term) => { %>
-												<option value="<%= term %>" <%= filters.term === term ? 'selected' : '' %>><%= term %></option>
-											<% }) %>
-										</select>
-									</div>
-									<div class="filter-field">
-										<label for="schoolYear">School Year</label>
-										<select id="schoolYear" name="schoolYear">
-											<option value="">All School Years</option>
-											<% schoolYears.forEach((sy) => { %>
-												<option value="<%= sy %>" <%= filters.schoolYear === sy ? 'selected' : '' %>><%= sy %></option>
-											<% }) %>
-										</select>
-									</div>
-									<div class="filter-actions">
-										<a class="filter-reset" href="/dashboard">Reset</a>
-										<button class="filter-apply" type="submit">Apply</button>
-									</div>
-								</form>
-							</div>
-						</div>
-					</div>
+            <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+                <!-- Course Breakdown Table -->
+                <div class="data-card">
+                    <div class="data-card-header">
+                        <h2 class="data-card-title">Course Breakdown</h2>
+                        <span class="course-count-badge"><%= typeof courseRows !== 'undefined' ? courseRows.length : 0 %> courses</span>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="dashboard-table">
+                            <thead>
+                                <tr>
+                                    <th>Course Code</th>
+                                    <th>Course Name</th>
+                                    <th>No. of Students</th>
+                                    <th>Passed</th>
+                                    <th>Completion</th>
+                                    <th>Pass Rate</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% if (typeof courseRows !== 'undefined' && courseRows.length > 0) { %>
+                                    <% courseRows.forEach(row => { %>
+                                        <tr>
+                                            <td><strong><%= row.courseCode %></strong></td>
+                                            <td><%= row.courseName %></td>
+                                            <td><strong><%= row.students %></strong></td>
+                                            <td><span class="count-passed"><%= row.passed %></span></td>
+                                            <td><span class="count-completion"><%= row.completion %></span></td>
+                                            <td>
+                                                <div class="progress-container">
+                                                    <div class="progress-track">
+                                                        <div class="progress-fill" style="width: <%= row.passRate %>%"></div>
+                                                    </div>
+                                                    <span class="progress-text"><%= row.passRate %>%</span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    <% }) %>
+                                <% } else { %>
+                                    <tr>
+                                        <td colspan="6" style="text-align: center; padding: 2rem;">No course data available.</td>
+                                    </tr>
+                                <% } %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
 
-					<div class="table-shell">
-						<table class="dash-table">
-							<thead>
-								<tr>
-									<th scope="col">Course Code</th>
-									<th scope="col" class="center-col">No. of Students</th>
-									<th scope="col" class="center-col">Passed</th>
-									<th scope="col" class="center-col">Completion</th>
-								</tr>
-							</thead>
-							<tbody>
-								<% if (courseRows.length === 0) { %>
-									<tr>
-										<td class="empty-cell" colspan="4">
-											<strong>No exam records found.</strong>
-											<span>Try changing your filters or add exam records first.</span>
-										</td>
-									</tr>
-								<% } %>
-								<% courseRows.forEach((row) => { %>
-									<tr>
-										<td class="course-code"><%= row.courseCode %></td>
-										<td class="center-col num-students"><%= row.students %></td>
-										<td class="center-col num-passed"><%= row.passed %></td>
-										<td class="center-col num-completion"><%= row.completion %></td>
-									</tr>
-								<% }) %>
-							</tbody>
-						</table>
-					</div>
-				</div>
-			</div>
-		</section>
-	</main>
+                <!-- Program Breakdown Table -->
+                <div class="data-card">
+                    <div class="data-card-header">
+                        <h2 class="data-card-title">Program Breakdown</h2>
+                        <span class="course-count-badge"><%= typeof programRows !== 'undefined' ? programRows.length : 0 %> programs</span>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="dashboard-table">
+                            <thead>
+                                <tr>
+                                    <th>Program</th>
+                                    <th>Students</th>
+                                    <th>Passed</th>
+                                    <th>Completion</th>
+                                    <th>Pass Rate</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% if (typeof programRows !== 'undefined' && programRows.length > 0) { %>
+                                    <% programRows.forEach(row => { %>
+                                        <tr>
+                                            <td><strong><%= row.program %></strong></td>
+                                            <td><strong><%= row.students %></strong></td>
+                                            <td><span class="count-passed"><%= row.passed %></span></td>
+                                            <td><span class="count-completion"><%= row.completion %></span></td>
+                                            <td>
+                                                <div class="progress-container">
+                                                    <div class="progress-track">
+                                                        <div class="progress-fill" style="width: <%= row.passRate %>%"></div>
+                                                    </div>
+                                                    <span class="progress-text"><%= row.passRate %>%</span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    <% }) %>
+                                <% } else { %>
+                                    <tr>
+                                        <td colspan="5" style="text-align: center; padding: 2rem;">No program data available. Please restart your server to view this section.</td>
+                                    </tr>
+                                <% } %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+    </main>
 
-	<script>
-		(() => {
-			const toggle = document.getElementById('filterToggle');
-			const dropdown = document.getElementById('filterDropdown');
-			const closeBtn = document.getElementById('filterClose');
+    <script>
+        // Filter Popover Logic
+        const btnFilterToggle = document.getElementById('btnFilterToggle');
+        const filterPopover = document.getElementById('filterPopover');
+        const btnFilterClose = document.getElementById('btnFilterClose');
 
-			toggle.addEventListener('click', () => {
-				const isHidden = dropdown.hidden;
-				dropdown.hidden = !isHidden;
-				toggle.classList.toggle('active', isHidden);
-			});
+        btnFilterToggle.addEventListener('click', (e) => {
+            e.stopPropagation();
+            filterPopover.classList.toggle('show');
+        });
 
-			closeBtn.addEventListener('click', () => {
-				dropdown.hidden = true;
-				toggle.classList.remove('active');
-			});
+        btnFilterClose.addEventListener('click', () => {
+            filterPopover.classList.remove('show');
+        });
 
-			// Close dropdown when clicking outside
-			document.addEventListener('click', (e) => {
-				if (!dropdown.hidden && !dropdown.contains(e.target) && e.target !== toggle && !toggle.contains(e.target)) {
-					dropdown.hidden = true;
-					toggle.classList.remove('active');
-				}
-			});
-		})();
-	</script>
+        // Close when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!filterPopover.contains(e.target) && !btnFilterToggle.contains(e.target)) {
+                filterPopover.classList.remove('show');
+            }
+        });
+    </script>
 </body>
 </html>

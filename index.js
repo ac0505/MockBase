@@ -13,6 +13,9 @@ import loginRouter from "./routes/loginRoute.js";
 import dashboardRouter from "./routes/dashboardRoute.js";
 import coursesRouter from "./routes/coursesRoute.js";
 import studentsRouter from "./routes/studentsRoute.js";
+import adminRouter from "./routes/adminRoute.js";
+import dataRouter from "./routes/dataRoute.js";
+import Course from "./models/courseSchema.js";
 
 // Re-create __dirname for ES Modules
 const __filename = fileURLToPath(import.meta.url);
@@ -38,6 +41,14 @@ app.use(
     })
 );
 
+// Make session user info available to all EJS views
+app.use((req, res, next) => {
+    res.locals.userRole = req.session?.role || null;
+    res.locals.currentUserId = req.session?.userId || null;
+    res.locals.username = req.session?.username || null;
+    next();
+});
+
 // Set view engine
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
@@ -51,6 +62,33 @@ app.use("/login", loginRouter);
 app.use("/dashboard", dashboardRouter);
 app.use("/students", studentsRouter);
 app.use("/courses", coursesRouter);
+app.use("/admin", adminRouter);
+app.use("/data", dataRouter);
+
+// Logout route
+app.get("/logout", (req, res) => {
+    req.session.destroy((err) => {
+        if (err) console.error("Session destroy error:", err);
+        res.redirect("/login");
+    });
+});
+
+// Active terms API (accessible by all authenticated users for course creation)
+import AcademicTerm from "./models/academicTermSchema.js";
+app.get("/api/active-terms", async (req, res) => {
+    try {
+        if (!req.session?.userId) {
+            return res.status(401).json({ error: "Not authenticated." });
+        }
+        const terms = await AcademicTerm.find({ isActive: true })
+            .select("schoolYear term")
+            .sort({ schoolYear: -1, term: 1 })
+            .lean();
+        return res.json({ terms });
+    } catch (error) {
+        return res.status(500).json({ error: "Unable to fetch active terms." });
+    }
+});
 
 // Default route
 app.get("/", (req, res) => {
@@ -59,6 +97,7 @@ app.get("/", (req, res) => {
 
 try {
     await connectDB();
+    await Course.syncIndexes();
     const server = app.listen(port, () => {
         console.log(`Exit Exam Tracker running at http://localhost:${port}`);
     });

@@ -31,6 +31,10 @@
 					</div>
 				</header>
 				<div class="roster-actions">
+					<div class="bulk-status-actions" id="rosterBulkStatusActions" hidden>
+						<select id="rosterBulkStatus" aria-label="Bulk status"><option value="">Set status...</option><option value="P">Passed</option><option value="C">Completion</option></select>
+						<button class="button button-primary" type="button" id="applyRosterBulkStatus">Apply</button>
+					</div>
 					<button class="button button-primary" type="button" id="editRosterButton" data-exam-record-id="<%= selectedExamRecord._id %>">Edit Roster</button>
 				</div>
 
@@ -43,7 +47,7 @@
 								<th scope="col">First Name/M.I.</th>
 								<th scope="col">Program</th>
 								<th scope="col">Status</th>
-								<th scope="col">Result</th>
+								<th scope="col"><input type="checkbox" id="selectAllRosterStudents" aria-label="Select all students"></th>
 								<th scope="col"><span class="visually-hidden">Student information</span></th>
 								<th scope="col"><span class="visually-hidden">Action</span></th>
 							</tr>
@@ -60,7 +64,7 @@
 										<td class="student-name-cell"><%= entry.student.firstName %><%= entry.student.middleName ? ` ${entry.student.middleName.charAt(0)}.` : '' %></td>
 										<td><%= entry.student.program %></td>
 										<td><button class="status-badge <%= entry.status === 'P' || entry.status === 'Passed' ? 'passed' : 'completion' %> roster-status-trigger" type="button" data-value="<%= entry.status === 'P' || entry.status === 'Passed' ? 'P' : 'C' %>" aria-label="Change status for <%= entry.student.studentId %>"><%= entry.status === 'P' || entry.status === 'Passed' ? 'P' : 'C' %></button></td>
-										<td><button class="result-badge <%= entry.recorded ? 'result-recorded' : 'result-not-recorded' %> roster-result-trigger" type="button" data-value="<%= entry.recorded ? 'true' : 'false' %>" aria-label="Change result for <%= entry.student.studentId %>"><%= entry.recorded ? 'Recorded' : 'Not recorded' %></button></td>
+										<td><input type="checkbox" class="roster-student-select" value="<%= entry.student._id %>" aria-label="Select <%= entry.student.studentId %>"></td>
 										<td class="action-cell info-action-cell"><button class="view-student-info" type="button">View student info</button></td>
 										<td class="action-cell">
 											<button class="icon-button delete-roster-student" type="button" data-exam-record-id="<%= selectedExamRecord._id %>" data-student-id="<%= entry.student._id %>" aria-label="Remove <%= entry.student.studentId %>" title="Remove student">&times;</button>
@@ -80,8 +84,50 @@
 
 				<div id="rosterAddStudentModal" class="course-modal" aria-hidden="true" hidden>
 					<div class="course-modal-card student-form-card" role="dialog" aria-modal="true" aria-labelledby="rosterAddStudentTitle">
-						<div class="modal-header-row"><h2 id="rosterAddStudentTitle">Add Students</h2><button class="icon-button close-roster-add" type="button" aria-label="Close">&times;</button></div>
-						<form id="rosterAddStudentForm"><div class="form-grid"><label class="field">First Name<input name="firstName" required></label><label class="field">Student ID Number<input name="studentId" type="text" inputmode="text" pattern="[A-Za-z0-9-]{1,20}" maxlength="20" required></label><label class="field">Last Name<input name="surname" required></label><label class="field">Program<select name="program" required><option value="">Select program...</option><option>AR</option><option>CE</option><option>CHE</option><option>CPE</option><option>EE</option><option>ECE</option><option>IE</option><option>ME</option></select></label><label class="field">Middle Name<input name="middleName"></label></div><label class="field">Upload CSV or Excel file<input id="rosterStudentFile" type="file" accept=".csv,.xls,.xlsx,.xlsm"></label><p id="rosterAddMessage" class="form-message" role="alert"></p><div class="modal-actions"><button class="button button-secondary close-roster-add" type="button">Cancel</button><button class="button button-primary" type="submit">Add to Roster</button></div></form>
+						
+						<div class="modal-header-row">
+							<h2 id="rosterAddStudentTitle">Add Students</h2>
+							<button class="icon-button close-roster-add" type="button" aria-label="Close">&times;</button>
+						</div>
+						<form id="rosterAddStudentForm">
+							<div class="form-grid">
+								<label class="field">First Name<input name="firstName" required></label>
+								<label class="field">Student ID Number<input name="studentId" type="text" inputmode="text" pattern="[A-Za-z0-9-]{1,20}" maxlength="20" required></label>
+								<label class="field">Last Name<input name="surname" required></label>
+								<label class="field">Program<select name="program" required>
+									<option value="">Select program...</option>
+									<option>AR</option>
+									<option>CE</option>
+									<option>CHE</option>
+									<option>CPE</option>
+									<option>EE</option>
+									<option>ECE</option>
+									<option>IE</option>
+									<option>ME</option>
+								</select></label>
+								<label class="field">Middle Name<input name="middleName"></label>
+							</div>
+							<div class="student-import-actions roster-upload-row">
+								<strong>Students</strong>
+								<button type="button" class="file-upload-trigger" id="rosterAddStudentButton">+ Add students</button>
+								<label class="file-upload-trigger" for="rosterStudentFile">Upload CSV or Excel file</label>
+								<input id="rosterStudentFile" type="file" accept=".csv,.xls,.xlsx,.xlsm" hidden>
+							</div>
+							<div class="roster-staged-preview staged-roster-shell">
+								<table class="exam-table staged-roster-table">
+									<thead>
+										<tr><th>First Name</th><th>Last Name</th><th>Student ID</th><th>Program</th><th></th></tr>
+									</thead>
+									<tbody id="rosterStagedBody"><tr><td class="empty-cell" colspan="5">No students added yet.</td></tr></tbody>
+								</table>
+							</div>
+							<p id="rosterStagedCount" class="staged-count"></p>
+							<p id="rosterAddMessage" class="form-message" role="alert"></p>
+							<div class="modal-actions">
+								<button class="button button-secondary close-roster-add" type="button">Cancel</button>
+								<button class="button button-primary" type="submit">Add to Roster</button>
+							</div>
+						</form>
 					</div>
 				</div>
 
@@ -103,6 +149,10 @@
 				</div>
 				<button class="button button-primary" type="button" id="createCourseButton">Create Course</button>
 			</header>
+			<div class="exam-bulk-status-actions" id="examBulkStatusActions" hidden>
+				<select id="examBulkStatus" aria-label="Bulk status"><option value="">Set status...</option><option value="P">Passed</option><option value="C">Completion</option></select>
+				<button class="button button-primary" type="button" id="applyExamBulkStatus">Apply to selected exams</button>
+			</div>
 
 			<form class="filter-toolbar" method="get" action="/courses" role="search">
 				<div class="field search-field">
@@ -145,6 +195,7 @@
 							<th scope="col">Term</th>
 							<th scope="col">School Year</th>
 							<th scope="col">Students</th>
+							<th scope="col"><input type="checkbox" id="selectAllExamRecords" aria-label="Select all exam records"></th>
 							<th scope="col"><span class="visually-hidden">Action</span></th>
 						</tr>
 					</thead>
@@ -166,7 +217,9 @@
 									<td><%= record.term %></td>
 									<td><%= record.schoolYear %></td>
 									<td><%= record.roster.length %></td>
+									<td><input type="checkbox" class="exam-record-select" value="<%= record._id %>" aria-label="Select <%= record.course.courseCode %>"></td>
 									<td class="action-cell">
+										<button type="button" class="text-action edit-course-name" data-course-id="<%= record.course._id %>" data-course-name="<%= record.course.courseName %>">Edit name</button>
 										<a class="roster-link" href="/courses/<%= record._id %>/roster<%= listQueryString ? `?${listQueryString}` : '' %>">View Roster</a>
 									</td>
 								</tr>
@@ -193,13 +246,14 @@
 						<label class="field field-full">Course Name<input name="courseName" required></label>
 						<label class="field">Course Code<input name="courseCode" required></label>
 						<label class="field">Section<input name="section" required></label>
-						<label class="field">Academic Year<input name="schoolYear" placeholder="2025-2026" pattern="\d{4}-\d{4}" required></label>
+						<label class="field">Academic Year<select name="schoolYear" id="createCourseSchoolYear" required><option value="">Select school year...</option></select></label>
 						<label class="field">Term<select name="term" required><option value="">Select term...</option><% (allTerms || terms).forEach((term) => { %><option value="<%= term %>"><%= term %></option><% }) %></select></label>
 					</div>
 					<div class="roster-preview-header">
 						<strong>Students</strong>
 						<button class="text-action" id="openAddStudentButton" type="button">+ Add Students</button>
-						<label class="text-action" for="courseStudentFile">Upload CSV/Excel</label><input id="courseStudentFile" type="file" accept=".csv,.xls,.xlsx,.xlsm" hidden>
+						<label class="text-action" for="courseStudentFile">Upload CSV/Excel</label>
+						<input id="courseStudentFile" type="file" accept=".csv,.xls,.xlsx,.xlsm" hidden>
 					</div>
 					<div class="staged-roster-shell">
 						<table class="exam-table staged-roster-table"><thead><tr><th>First Name</th><th>Last Name</th><th>Student ID</th><th>Program</th><th></th></tr></thead><tbody id="stagedRosterBody"><tr id="stagedRosterEmpty"><td class="empty-cell" colspan="5">No students added yet.</td></tr></tbody></table>

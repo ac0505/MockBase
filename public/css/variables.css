@@ -1,31 +1,217 @@
 :root {
-    /* --- THE OFFICIAL SCHOOL PALETTE --- */
-    --color-charcoal: #272727;
-    --color-white: #ffffff;
-    --color-mapua-red: #a00100;
-    --color-mapua-blue: #002455;
+    /* --- COLOR PALETTE (From Reference UI) --- */
+    --color-primary: #1c1c1c; /* Dark gray for headers, buttons */
+    --color-primary-light: #2d2d2d;
+    --color-secondary: #b31b1b; /* MMCM Red */
+    --color-secondary-light: #d32f2f;
+    
+    /* Backgrounds */
+    --bg-main: #f9f9f9; /* Off-white / light gray */
+    --bg-card: #ffffff;
+    --bg-navbar: #262626; /* Dark navbar */
+    
+    /* Text Colors */
+    --text-primary: #1c1c1c;
+    --text-secondary: #6e6e6e;
+    --text-muted: #9e9e9e;
+    
+    /* Status Colors */
+    --status-passed: #10b981;
+    --status-passed-bg: #d1fae5;
+    --status-completion: #f59e0b;
+    --status-completion-bg: #fef3c7;
+    --status-pending: #6b7280;
+    --status-pending-bg: #f3f4f6;
+    --status-failed: #ef4444;
+    --status-failed-bg: #fee2e2;
+    
+    /* Borders & Shadows */
+    --border-light: #e5e5e5;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.05);
+    
+    /* Transitions */
+    --transition-fast: 150ms ease-in-out;
+    --transition-normal: 250ms ease-in-out;
+    
+    /* Border Radius */
+    --radius-sm: 4px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --radius-full: 9999px;
+}
 
-    /* --- STATUS COLORS --- */
-    --color-green: #0B990D;
-    --color-yellow: #DEDB16;
-    --light-green: #C0F7C4;
-    --light-yellow: #F7F7C0;
-    --dark-green: #0b800d;
-    --dark-yellow: #949100;
-    --light-red: #fbe0e0;
-    --light-blue: #dbeafe;
+/* Global Reset & Base Styles */
+html {
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--bg-navbar) transparent;
+}
 
-    /* --- GRAYSCALE & BACKGROUNDS --- */
-    --text-box-bg: #F7F7F7;
-    --medium-gray: #C2C2C2;
-    --light-gray: #f0f0f0;
-    --dark-gray: #444444;
-    --border-gray: #e0e0e0;
-    --hover-gray: #fafafa;
-    --subtle-text: #888888;
-    --color-black: #000000;
+html::-webkit-scrollbar {
+    width: 6px;
+}
 
-    /* --- TRANSITIONS --- */
-    --transition-fast: 0.15s ease;
-    --transition-normal: 0.25s ease;
+html::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+html::-webkit-scrollbar-thumb {
+    background: var(--bg-navbar);
+    border: 1px solid transparent;
+    border-radius: var(--radius-full);
+    background-clip: content-box;
+}
+
+html::-webkit-scrollbar-thumb:hover {
+    background: var(--color-primary-light);
+    background-clip: content-box;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', 'Albert Sans', system-ui, -apple-system, sans-serif;
+    background-color: var(--bg-main);
+    color: var(--text-primary);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+button {
+    cursor: pointer;
+    border: none;
+    background: none;
+    font-family: inherit;
+}
+
+/* Global Layout */
+.main-wrapper {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+    padding-top: 6rem; /* Account for fixed navbar */
+    min-height: calc(100vh - 60px);
+    display: flex;
+    flex-direction: column;
+}
+
+.page-header {
+    margin-bottom: 2rem;
+}
+
+.page-title {
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    letter-spacing: -0.02em;
+    margin-bottom: 0.25rem;
+}
+
+.page-description {
+    color: var(--text-secondary);
+    font-size: 1rem;
+}
+
+.eyebrow {
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    color: var(--color-secondary);
+    margin-bottom: 0.25rem;
+}
+
+/* Buttons */
+.button-primary {
+    background-color: var(--color-primary);
+    color: white;
+    padding: 0.6rem 1.2rem;
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: background-color var(--transition-fast);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.button-primary:hover {
+    background-color: var(--color-primary-light);
+}
+
+.button-secondary {
+    background-color: white;
+    color: var(--text-primary);
+    border: 1px solid var(--border-light);
+    padding: 0.6rem 1.2rem;
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: all var(--transition-fast);
+}
+
+.button-secondary:hover {
+    background-color: var(--bg-main);
+}
+
+/* Shared form controls */
+.form-input,
+.form-select,
+input[type="text"],
+input[type="search"],
+input[type="email"],
+input[type="password"],
+select {
+    background: var(--bg-card);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-md);
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 0.875rem;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 1.4;
+}
+
+.form-input,
+.form-select,
+input[type="text"],
+input[type="search"],
+input[type="email"],
+input[type="password"],
+select {
+    min-height: 38px;
+    padding: 0.6rem 0.75rem;
+}
+
+.form-input:focus,
+.form-select:focus,
+input[type="text"]:focus,
+input[type="search"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+select:focus {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(28, 28, 28, 0.08);
+    outline: none;
+}
+
+/* Copyright Footer */
+.dev-copyright {
+    text-align: center;
+    padding: 2rem;
+    color: var(--text-muted);
+    font-size: 0.875rem;
+    margin-top: auto;
 }

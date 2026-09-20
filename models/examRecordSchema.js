@@ -11,7 +11,7 @@ const rosterEntrySchema = new mongoose.Schema(
       type: String,
       enum: {
         values: ["P", "C"],
-        message: "Result must be P (Pass) or C (Continuing)"
+        message: "Result must be P (Pass) or C (Completion)"
       },
       default: null
     },
@@ -24,10 +24,10 @@ const rosterEntrySchema = new mongoose.Schema(
     status: {
       type: String,
       enum: {
-        values: ["P", "C", "Passed", "Continuing", "Failed", "Pending"],
-        message: "Status must be one of P, C, Passed, Continuing, Failed, or Pending"
+        values: ["P", "C", "Passed", "Completion"],
+        message: "Status must be Passed or Completion"
       },
-      default: "Pending"
+      default: "C"
     },
 
     // Admin or proctor who entered the result
@@ -80,6 +80,22 @@ const examRecordSchema = new mongoose.Schema(
         },
         message: "Roster cannot contain missing or duplicate students"
       }
+    },
+
+    isLocked: {
+      type: Boolean,
+      default: false
+    },
+
+    lockedAt: {
+      type: Date,
+      default: null
+    },
+
+    lockedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      default: null
     }
   },
   { timestamps: true }

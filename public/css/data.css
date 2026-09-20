@@ -1,0 +1,252 @@
+.data-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    margin: 0 auto 2rem;
+    width: 100%;
+}
+
+@media (max-width: 1024px) {
+    .data-grid { grid-template-columns: 1fr; }
+}
+
+.data-section {
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--border-light);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    min-height: 420px;
+}
+
+.data-section-header {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--border-light);
+    background-color: var(--bg-main);
+}
+
+.data-section-title {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--color-primary);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.data-section-title .material-symbols-outlined {
+    font-size: 1.1rem;
+}
+
+.data-section-body {
+    padding: 1rem 1.25rem 1.25rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.data-section-body .upload-form {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.data-section-body .form-group {
+    gap: 0.35rem;
+}
+
+/* Upload Area */
+.upload-dropzone {
+    border: 2px dashed var(--border-light);
+    border-radius: var(--radius-md);
+    padding: 2rem 1rem;
+    text-align: center;
+    transition: all var(--transition-fast);
+    background-color: var(--bg-main);
+    cursor: pointer;
+}
+
+.upload-dropzone:hover, .upload-dropzone.drag-active {
+    border-color: var(--color-primary);
+    background-color: #f0f4f8;
+}
+
+.upload-icon {
+    font-size: 3rem;
+    color: var(--text-muted);
+    margin-bottom: 1rem;
+}
+
+.upload-text {
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.upload-subtext {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+.file-input-hidden {
+    display: none;
+}
+
+.upload-preview {
+    display: none;
+    background: var(--status-pending-bg);
+    padding: 1rem;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-light);
+}
+
+.upload-preview.active {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.file-details {
+    display: flex;
+    flex-direction: column;
+}
+
+.file-name {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.file-size {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+/* Form Controls */
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.form-label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+}
+
+.form-select, .form-input {
+    padding: 0.55rem 0.75rem;
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-md);
+    background-color: var(--bg-card);
+    color: var(--text-primary);
+    font-size: 0.8rem;
+    outline: none;
+    transition: all var(--transition-fast);
+    width: 100%;
+}
+
+.form-select:focus, .form-input:focus {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(0, 36, 85, 0.1);
+}
+
+/* Export Buttons */
+.export-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+    margin-top: auto;
+}
+
+.data-section-body > p {
+    font-size: 0.78rem;
+    line-height: 1.45;
+}
+
+.data-section-body .button-primary {
+    font-size: 0.8rem;
+    min-height: 38px;
+    border-radius: var(--radius-md);
+}
+
+@media (max-width: 1024px) {
+    .data-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .data-section {
+        min-height: 0;
+    }
+}
+
+.btn-export-excel {
+    background-color: #107c41;
+    color: white;
+    border-radius: var(--radius-md);
+}
+
+.btn-export-excel:hover {
+    background-color: #0b5e31;
+}
+
+.btn-export-pdf {
+    background-color: #d83b01;
+    color: white;
+    border-radius: var(--radius-md);
+}
+
+.btn-export-pdf:hover {
+    background-color: #a82e01;
+}
+
+.btn-full {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Validation messages */
+.alert {
+    padding: 1rem;
+    border-radius: var(--radius-md);
+    margin-bottom: 1rem;
+    font-size: 0.875rem;
+    display: none;
+}
+
+.alert.show {
+    display: block;
+}
+
+.alert-error {
+    background-color: var(--status-failed-bg);
+    color: var(--status-failed);
+    border: 1px solid #fca5a5;
+}
+
+.alert-success {
+    background-color: var(--status-passed-bg);
+    color: var(--status-passed);
+    border: 1px solid #86efac;
+}
+
+.alert-warning {
+    background-color: var(--status-completion-bg);
+    color: var(--status-completion);
+    border: 1px solid #fde047;
+}
+
+.error-list {
+    margin-top: 0.5rem;
+    padding-left: 1.5rem;
+}

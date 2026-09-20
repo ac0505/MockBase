@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const courseFormMessage = document.getElementById('courseFormMessage');
     const studentFormMessage = document.getElementById('studentFormMessage');
     const courseStudentFile = document.getElementById('courseStudentFile');
+    const createCourseSchoolYear = document.getElementById('createCourseSchoolYear');
     const rosterStudentFile = document.getElementById('rosterStudentFile');
     const stagedStudents = [];
     let uploadedRosterStudents = [];
@@ -22,7 +23,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const rosterAddStudentModal = document.getElementById('rosterAddStudentModal');
     const rosterAddStudentForm = document.getElementById('rosterAddStudentForm');
     const rosterAddMessage = document.getElementById('rosterAddMessage');
+    const rosterStagedBody = document.getElementById('rosterStagedBody');
+    const rosterStagedCount = document.getElementById('rosterStagedCount');
+        const rosterAddStudentButton = document.getElementById('rosterAddStudentButton');
     const studentInfoModal = document.getElementById('studentInfoModal');
+    const selectAllRosterStudents = document.getElementById('selectAllRosterStudents');
+    const rosterBulkStatusActions = document.getElementById('rosterBulkStatusActions');
+    const rosterBulkStatus = document.getElementById('rosterBulkStatus');
+    const applyRosterBulkStatus = document.getElementById('applyRosterBulkStatus');
+    const selectAllExamRecords = document.getElementById('selectAllExamRecords');
+    const examBulkStatusActions = document.getElementById('examBulkStatusActions');
+    const examBulkStatus = document.getElementById('examBulkStatus');
+    const applyExamBulkStatus = document.getElementById('applyExamBulkStatus');
 
     function setModalVisibility(modal, visible) {
         if (!modal) return;
@@ -33,6 +45,65 @@ document.addEventListener('DOMContentLoaded', () => {
     function showMessage(element, message = '') {
         if (element) element.textContent = message;
     }
+
+    function syncBulkActionVisibility(selector, container) {
+        if (!container) return;
+        container.hidden = !document.querySelector(`${selector}:checked`);
+    }
+
+    selectAllRosterStudents?.addEventListener('change', () => {
+        document.querySelectorAll('.roster-student-select').forEach((checkbox) => { checkbox.checked = selectAllRosterStudents.checked; });
+        syncBulkActionVisibility('.roster-student-select', rosterBulkStatusActions);
+    });
+    document.querySelectorAll('.roster-student-select').forEach((checkbox) => checkbox.addEventListener('change', () => syncBulkActionVisibility('.roster-student-select', rosterBulkStatusActions)));
+    applyRosterBulkStatus?.addEventListener('click', async () => {
+        const studentIds = [...document.querySelectorAll('.roster-student-select:checked')].map((checkbox) => checkbox.value);
+        if (!rosterBulkStatus.value || !studentIds.length) return;
+        const response = await fetch(`/courses/api/${editRosterButton.dataset.examRecordId}/roster/status`, { method: 'PATCH', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ studentIds, status: rosterBulkStatus.value }) });
+        if (!response.ok) return window.alert((await response.json().catch(() => ({}))).error || 'Unable to update statuses.');
+        window.location.reload();
+    });
+
+    selectAllExamRecords?.addEventListener('change', () => {
+        document.querySelectorAll('.exam-record-select').forEach((checkbox) => { checkbox.checked = selectAllExamRecords.checked; });
+        syncBulkActionVisibility('.exam-record-select', examBulkStatusActions);
+    });
+    document.querySelectorAll('.exam-record-select').forEach((checkbox) => checkbox.addEventListener('change', () => syncBulkActionVisibility('.exam-record-select', examBulkStatusActions)));
+    applyExamBulkStatus?.addEventListener('click', async () => {
+        const examRecordIds = [...document.querySelectorAll('.exam-record-select:checked')].map((checkbox) => checkbox.value);
+        if (!examBulkStatus.value || !examRecordIds.length) return;
+        const response = await fetch('/courses/api/roster/status', { method: 'PATCH', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ examRecordIds, status: examBulkStatus.value }) });
+        if (!response.ok) return window.alert((await response.json().catch(() => ({}))).error || 'Unable to update statuses.');
+        window.location.reload();
+    });
+
+    document.querySelectorAll('.edit-course-name').forEach((button) => button.addEventListener('click', async () => {
+        const courseName = window.prompt('Course name:', button.dataset.courseName);
+        if (!courseName?.trim()) return;
+        const response = await fetch(`/courses/api/courses/${button.dataset.courseId}`, { method: 'PATCH', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ courseName: courseName.trim() }) });
+        if (!response.ok) return window.alert((await response.json().catch(() => ({}))).error || 'Unable to update course name.');
+        window.location.reload();
+    }));
+
+    async function loadConfiguredSchoolYears() {
+        if (!createCourseSchoolYear) return;
+        const response = await fetch('/api/active-terms');
+        const result = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(result.error || 'Unable to load school years.');
+
+        const schoolYears = [...new Set((result.terms || []).map((term) => term.schoolYear))];
+        createCourseSchoolYear.innerHTML = '<option value="">Select school year...</option>';
+        schoolYears.forEach((schoolYear) => {
+            const option = document.createElement('option');
+            option.value = schoolYear;
+            option.textContent = schoolYear;
+            createCourseSchoolYear.appendChild(option);
+        });
+    }
+
+    loadConfiguredSchoolYears().catch((error) => {
+        showMessage(courseFormMessage, error.message);
+    });
 
     async function parseStudentFile(file) {
         const formData = new FormData();
@@ -86,6 +157,29 @@ document.addEventListener('DOMContentLoaded', () => {
             row.appendChild(actionCell);
             stagedRosterBody.appendChild(row);
         });
+    }
+
+    function renderRosterStagedStudents(students) {
+        if (!rosterStagedBody) return;
+        rosterStagedBody.innerHTML = '';
+        if (!students.length) {
+            rosterStagedBody.innerHTML = '<tr><td class="empty-cell" colspan="5">No students added yet.</td></tr>';
+        } else {
+            students.forEach((student) => {
+                const row = document.createElement('tr');
+                [student.firstName, student.surname, student.studentId, student.program].forEach((value) => {
+                    const cell = document.createElement('td');
+                    cell.textContent = value || '';
+                    row.appendChild(cell);
+                });
+                const actionCell = document.createElement('td');
+                actionCell.className = 'action-cell';
+                actionCell.textContent = '\u00d7';
+                row.appendChild(actionCell);
+                rosterStagedBody.appendChild(row);
+            });
+        }
+        if (rosterStagedCount) rosterStagedCount.textContent = students.length ? `${students.length} students staged.` : '';
     }
 
     function resetStudentForm() {
@@ -191,6 +285,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     editRosterButton?.addEventListener('click', () => {
         uploadedRosterStudents = [];
+        renderRosterStagedStudents(uploadedRosterStudents);
         if (rosterAddStudentForm) rosterAddStudentForm.noValidate = false;
         rosterAddStudentForm?.reset();
         showMessage(rosterAddMessage);
@@ -200,6 +295,10 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.close-roster-add').forEach((button) => {
         button.addEventListener('click', () => setModalVisibility(rosterAddStudentModal, false));
     });
+
+        rosterAddStudentButton?.addEventListener('click', () => {
+            rosterAddStudentForm?.querySelector('input[name="firstName"]')?.focus();
+        });
 
     rosterAddStudentForm?.addEventListener('submit', async (event) => {
         event.preventDefault();
@@ -250,6 +349,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!rosterStudentFile.files[0]) return;
         try {
             uploadedRosterStudents = await parseStudentFile(rosterStudentFile.files[0]);
+            renderRosterStagedStudents(uploadedRosterStudents);
             rosterAddStudentForm.noValidate = true;
             showMessage(rosterAddMessage, `${uploadedRosterStudents.length} students ready to add.`);
         } catch (error) {

@@ -4,6 +4,7 @@ import Course from "../models/courseSchema.js";
 import ExamRecord from "../models/examRecordSchema.js";
 import Student from "../models/studentSchema.js";
 import User from "../models/userSchema.js";
+import AcademicTerm from "../models/academicTermSchema.js";
 import { resolveStudentEntries, StudentImportConflictError } from "../utils/studentImport.js";
 
 const studentsRouter = express.Router();
@@ -97,10 +98,13 @@ studentsRouter.get("/", requireExamAccess, async (req, res) => {
 // ---- API: courses + terms for the Add Students modal dropdowns ----
 studentsRouter.get("/api/form-options", requireExamAccess, async (req, res) => {
     try {
-        const courses = await Course.find({})
+        const [courses, academicTerms] = await Promise.all([
+            Course.find({})
             .select("courseCode courseName section")
             .sort({ courseCode: 1 })
-            .lean();
+            .lean(),
+            AcademicTerm.find({ isActive: true }).select("schoolYear term -_id").sort({ schoolYear: -1, term: 1 }).lean()
+        ]);
         const examRecords = await ExamRecord.find({})
             .select("course term schoolYear")
             .lean();
@@ -121,7 +125,8 @@ studentsRouter.get("/api/form-options", requireExamAccess, async (req, res) => {
                 section: c.section,
                 offerings: recordsByCourse.get(c._id.toString()) || []
             })),
-            terms: TERM_ORDER
+            terms: TERM_ORDER,
+            academicTerms
         });
     } catch (error) {
         console.error("Unable to load form options:", error);

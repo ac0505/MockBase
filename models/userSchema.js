@@ -43,6 +43,12 @@ const userSchema = new mongoose.Schema(
     isActive: {
       type: Boolean,
       default: true
+    },
+
+    department: {
+      type: String,
+      trim: true,
+      default: ""
     }
   },
   { timestamps: true }

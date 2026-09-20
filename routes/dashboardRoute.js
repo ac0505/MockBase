@@ -39,6 +39,7 @@ dashboardRouter.get("/", async (req, res) => {
         // ── Aggregate stats ──
         const examRecords = await ExamRecord.find(query)
             .populate({ path: "course", select: "courseCode courseName" })
+            .populate({ path: "roster.student", select: "program" })
             .lean();
 
         // Global counters
@@ -46,8 +47,10 @@ dashboardRouter.get("/", async (req, res) => {
         let totalPassed = 0;
         let totalCompletion = 0;
 
-        // Per-course map:  courseCode → { courseName, students, passed, completion }
+        // Per-course map:  courseCode → { courseName, students, passed, completion, passRate }
         const courseMap = new Map();
+        // Per-program map: program → { students, passed, completion, passRate }
+        const programMap = new Map();
 
         for (const record of examRecords) {
             if (!record.course) continue;
@@ -63,31 +66,45 @@ dashboardRouter.get("/", async (req, res) => {
                 });
             }
 
-            const bucket = courseMap.get(code);
+            const courseBucket = courseMap.get(code);
 
             for (const entry of record.roster) {
                 totalStudents++;
-                bucket.students++;
+                courseBucket.students++;
+
+                const program = entry.student?.program || "Unknown";
+                if (!programMap.has(program)) {
+                    programMap.set(program, { program, students: 0, passed: 0, completion: 0 });
+                }
+                const programBucket = programMap.get(program);
+                programBucket.students++;
 
                 if (entry.status === "P" || entry.status === "Passed") {
                     totalPassed++;
-                    bucket.passed++;
-                } else if (entry.status === "C" || entry.status === "Continuing") {
+                    courseBucket.passed++;
+                    programBucket.passed++;
+                } else {
                     totalCompletion++;
-                    bucket.completion++;
+                    courseBucket.completion++;
+                    programBucket.completion++;
                 }
             }
         }
 
-        const courseRows = [...courseMap.values()].sort((a, b) =>
-            a.courseCode.localeCompare(b.courseCode)
-        );
+        const courseRows = [...courseMap.values()]
+            .map(c => ({ ...c, passRate: c.students > 0 ? (c.passed / c.students * 100).toFixed(1) : 0 }))
+            .sort((a, b) => a.courseCode.localeCompare(b.courseCode));
+            
+        const programRows = [...programMap.values()]
+            .map(p => ({ ...p, passRate: p.students > 0 ? (p.passed / p.students * 100).toFixed(1) : 0 }))
+            .sort((a, b) => a.program.localeCompare(b.program));
 
         res.render("dashboard", {
             totalStudents,
             totalPassed,
             totalCompletion,
             courseRows,
+            programRows,
             terms,
             schoolYears,
             filters: { term: termFilter, schoolYear: schoolYearFilter }

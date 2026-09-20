@@ -26,6 +26,6 @@
     // Logout button
     const logoutBtn = document.getElementById('logout-btn');
     logoutBtn.addEventListener('click', () => {
-        window.location.href = '/login';
+        window.location.assign('/logout');
     });
 })();

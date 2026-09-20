@@ -1,549 +1,558 @@
-@import url('/css/variables.css');
-
-* { box-sizing: border-box; }
-
-html, body { margin: 0; min-height: 100%; }
-
-body {
-    background: var(--color-white);
-    color: var(--color-charcoal);
-    font-family: 'Albert Sans', sans-serif;
-    padding-top: 118px;
+.page-header {
+    margin-bottom: 2rem;
 }
 
-.main-wrapper { 
-    margin: 0 auto; 
-    max-width: 1500px; 
-    padding: 0 48px 56px; 
+.course-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.search-bar {
+    position: relative;
+    width: 300px;
+}
+
+.search-bar .material-symbols-outlined {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+}
+
+.search-input {
+    width: 100%;
+    padding: 0.75rem 1rem 0.75rem 2.5rem;
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-full);
+    background-color: var(--bg-card);
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 0.875rem;
+    font-style: normal;
+    font-weight: 400;
+    transition: all var(--transition-fast);
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(0, 36, 85, 0.1);
+}
+
+.course-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.5rem;
+}
+
+.course-card {
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border-light);
+    overflow: hidden;
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+    display: flex;
+    flex-direction: column;
+}
+
+.course-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-md);
+}
+
+.course-card-header {
+    background-color: var(--color-primary);
+    color: white;
+    padding: 1.5rem;
+}
+
+.course-code {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+}
+
+.course-name {
+    font-size: 0.875rem;
+    opacity: 0.9;
+}
+
+.course-card-body {
+    padding: 1.5rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.course-detail {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+}
+
+.course-detail .material-symbols-outlined {
+    font-size: 1.25rem;
+}
+
+.course-card-footer {
+    padding: 1rem 1.5rem;
+    border-top: 1px solid var(--border-light);
+    background-color: var(--bg-main);
+    display: flex;
+    justify-content: flex-end;
+}
+
+.btn-view {
+    color: var(--color-primary);
+    font-weight: 600;
+    font-size: 0.875rem;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    transition: gap var(--transition-fast);
+}
+
+.course-card:hover .btn-view {
+    gap: 0.5rem;
+}
+
+/* Modal specific overrides if needed */
+
+/* Reference layout for the current Courses template */
+.main-wrapper {
+    max-width: 1280px;
 }
 
 .page-header {
-    align-items: end;
+    align-items: flex-end;
     display: flex;
+    gap: 2rem;
     justify-content: space-between;
-    margin-bottom: 28px;
+    margin-bottom: 1rem;
 }
 
-.eyebrow {
-    color: var(--color-mapua-red);
-    font-size: 12px;
-    font-weight: 800;
-    letter-spacing: .12em;
-    margin: 0 0 8px;
-    text-transform: uppercase;
-}
-
-.page-title {
-    font-size: clamp(32px, 4vw, 44px);
-    letter-spacing: -.035em;
-    line-height: 1.05;
-    margin: 0;
-}
-
-.page-description { 
-    color: var(--subtle-text); 
-    line-height: 1.5; 
-    margin: 10px 0 0; 
-}
-
-.modal-header-row, .roster-preview-header { 
-    align-items: center; 
-    display: flex; 
-    justify-content: space-between; 
-    gap: 16px; 
-}
-.roster-preview-header { 
-    margin: 28px 0 10px; 
-}
-.text-action { 
-    background: none; 
-    border: 0; 
-    color: var(--color-mapua-red); 
-    cursor: pointer; 
-    font: inherit; 
-    font-weight: 800; 
-}
-.text-action:hover { 
-    text-decoration: underline; 
+.page-header .page-description {
+    font-size: 0.78rem;
 }
 
 .filter-toolbar {
-    align-items: end;
-    background: var(--text-box-bg);
-    border: 1px solid var(--border-gray);
-    border-radius: 16px;
+    align-items: flex-end;
+    background: transparent;
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
     display: grid;
-    gap: 14px;
-    grid-template-columns: minmax(260px, 1fr) 180px 190px auto auto;
-    padding: 16px;
+    gap: 0.6rem;
+    grid-template-columns: minmax(260px, 1fr) 130px 130px auto auto;
+    margin-bottom: 1rem;
+    padding: 0.75rem;
 }
 
-.field label { 
-    display: block; 
-    font-size: 12px; 
-    font-weight: 700; 
-    margin: 0 0 7px 2px; 
+.filter-toolbar .field {
+    color: var(--text-secondary);
+    font-size: 0.62rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
 }
 
-.field input, .field select,
 .filter-toolbar input,
 .filter-toolbar select {
-    background: var(--color-white);
-    border: 1px solid var(--border-gray);
-    border-radius: 10px;
-    color: var(--color-charcoal);
+    background: var(--bg-card);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-md);
+    color: var(--text-primary);
     font: inherit;
-    height: 42px;
+    font-size: 1rem;
+    height: 30px;
+    margin-top: 0.35rem;
     outline: none;
-    padding: 0 12px;
+    padding: 0 0.65rem;
     width: 100%;
-    box-shadow: none;
 }
 
-.field input:focus, .field select:focus,
+/* Change font size for the search text field */
+.filter-toolbar input#search {
+    font-size: 0.75rem !important; /* Change to your preferred size */
+    font-weight: 400 !important; /* Optional: Make the text bold */
+}
+
+/* Change font size for the dropdowns (Term and School Year) */
+.filter-toolbar select {
+    font-size: 0.75rem !important; /* Change to your preferred size */
+    font-weight: 400 !important; /* Optional: Make the text bold */
+}
+
 .filter-toolbar input:focus,
 .filter-toolbar select:focus {
-    border-color: var(--border-gray);
-    box-shadow: none;
-    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(28, 28, 28, 0.08);
 }
 
-.button {
+.filter-toolbar .button {
+    height: 40px;
+    padding: 0 1rem;
+    margin-bottom: 0.05rem;
+    margin-left: 0.25rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.results-heading {
+    color: var(--text-secondary);
+    font-size: 0.7rem;
+    margin: 0 0 0.65rem 0.75rem;
+}
+
+.table-shell {
+    background: var(--bg-card);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    overflow-x: auto;
+}
+
+.exam-table {
+    border-radius: var(--radius-lg) !important;
+    border-collapse: separate;
+    border-spacing: 0;
+    min-width: 780px;
+    text-align: left;
+    width: 100%;
+    border: 1px solid var(--border-light);
+}
+
+.exam-table th {
+    background: var(--bg-main);
+    border-bottom: 1px solid var(--border-light);
+    color: var(--text-secondary);
+    font-size: 0.68rem;
+    font-weight: 600;
+    padding: 0.75rem;
+    white-space: nowrap;
+}
+
+.exam-table td {
+    border-bottom: 1px solid var(--border-light);
+    color: var(--text-primary);
+    font-size: 0.75rem;
+    padding: 0.75rem;
+    white-space: nowrap;
+}
+
+.exam-table tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+.exam-table tbody tr:hover td {
+    background: #fafafa;
+}
+
+.exam-table .course-code {
+    font-weight: 800;
+}
+
+.action-cell {
+    text-align: right;
+}
+
+.exam-table:not(.roster-table) .action-cell {
+    padding-left: 0.75rem;
+    text-align: left;
+}
+
+/* Table Layout Setup */
+.exam-table.roster-table {
+    table-layout: fixed; /* Ensures the browser respects your explicit column widths */
+    width: 100%;
+}
+
+/* 1. Student Number */
+.exam-table.roster-table th:nth-child(1), 
+.exam-table.roster-table td:nth-child(1) {
+    width: 14%;
+}
+
+/* 2. Last Name */
+.exam-table.roster-table th:nth-child(2), 
+.exam-table.roster-table td:nth-child(2) {
+    width: 16%;
+}
+
+/* 3. First Name/M.I. */
+.exam-table.roster-table th:nth-child(3), 
+.exam-table.roster-table td:nth-child(3) {
+    width: 22%;
+}
+
+/* 4. Program */
+.exam-table.roster-table th:nth-child(4), 
+.exam-table.roster-table td:nth-child(4) {
+    width: 10%;
+}
+
+/* 5. Status */
+.exam-table.roster-table th:nth-child(5), 
+.exam-table.roster-table td:nth-child(5) {
+    width: 8%;
+}
+
+/* 6. Result */
+.exam-table.roster-table th:nth-child(6), 
+.exam-table.roster-table td:nth-child(6) {
+    width: 14%;
+}
+
+/* 7. View info button column */
+.exam-table.roster-table th:nth-child(7), 
+.exam-table.roster-table td:nth-child(7) {
+    width: 10%;
+}
+
+/* 8. Delete icon column */
+.exam-table.roster-table th:nth-child(8), 
+.exam-table.roster-table td:nth-child(8) {
+    width: 6%;
+}
+
+.roster-link,
+.back-link,
+.text-action {
+    color: var(--color-primary);
+    font-weight: 700;
+}
+
+.roster-link:hover,
+.back-link:hover,
+.text-action:hover {
+    color: var(--color-secondary-light);
+    background: var(--bg-main);
+
+}
+
+.text-action {
+    font-size: 0.75rem !important;
+    font-weight: 600 !important;
+    color: var(--color-secondary) !important;
+    padding: 0.45rem 0.7rem !important;
+    border-radius: var(--radius-md) !important;
+    margin-bottom: 4px !important;
+}
+
+.roster-preview-header {
     align-items: center;
+    display: flex;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-top: 4px;
+    width: 100%;
+}
+
+.roster-preview-header #openAddStudentButton {
+    margin-left: auto;
+}
+
+/* Add spacing between the two action links/buttons */
+.roster-preview-header .text-action + .text-action,
+.roster-preview-header .text-action + label {
+    margin-left: 1rem; 
+}
+
+.roster-preview-actions {
+    display: flex;
+    gap: 0.25rem;
+    align-items: center;
+}
+
+.student-action-button {
+    background: transparent;
     border: 1px solid transparent;
-    border-radius: 10px;
+    border-radius: var(--radius-sm);
+    color: var(--color-secondary);
     cursor: pointer;
     display: inline-flex;
     font: inherit;
-    font-size: 14px;
+    font-size: 0.75rem;
+    font-style: normal;
     font-weight: 700;
-    height: 42px;
+    align-items: center;
     justify-content: center;
-    padding: 0 18px;
+    padding: 0.45rem 0.7rem;
+    margin: 0;
+    transition: background-color var(--transition-fast), border-color var(--transition-fast);
+}
+
+.student-action-button:hover {
+    background: var(--bg-main);
+    border-color: var(--border-light, transparent);
+    color: var(--color-secondary-light);
+}
+
+.roster-header {
+    align-items: center;
+}
+
+.exam-summary {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1rem;
+    justify-content: flex-end;
+    max-width: 430px;
+}
+
+.exam-summary span {
+    color: var(--text-secondary);
+    font-size: 0.72rem;
+}
+
+.exam-summary strong {
+    color: var(--text-primary);
+}
+
+.roster-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin: -0.25rem 0 1rem;
+}
+
+.form-message {
+    font-size: 14px;
+    font-weight: 600;
+    margin-top: 8px;
+    color: var(--color-secondary);
+}
+
+.roster-upload-row {
+    align-items: center;
+    display: flex;
+    gap: 0.75rem;
+    justify-content: flex-end;
+    margin-top: 8px;
+    margin-bottom: 4px;
+}
+
+.roster-upload-row strong {
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    margin-right: auto;
+}
+
+.roster-upload-row .file-upload-trigger {
+    background: transparent;
+    border: 0;
+    color: var(--color-secondary);
+    cursor: pointer;
+    font: inherit;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.2rem 0.7rem;
     text-decoration: none;
     white-space: nowrap;
 }
 
-.button-primary { 
-    background: var(--color-charcoal); 
-    color: var(--color-white); 
-}
-.button-primary:hover { 
-    background: #000; 
-}
-.button-secondary { 
-    background: var(--color-white); 
-    border-color: var(--border-gray); 
-    color: var(--dark-gray); 
-}
-.button-secondary:hover { 
-    border-color: var(--medium-gray); 
-}
-.results-heading { 
-    color: var(--dark-gray); 
-    font-size: 14px; 
-    margin: 22px 2px 12px; 
-}
-.results-heading p { 
-    margin: 0; 
+.roster-upload-row .file-upload-trigger:hover {
+    background: var(--bg-main);
+    color: var(--color-secondary-light);
+    border-radius: var(--radius-sm);
+    text-decoration: none;
 }
 
-.table-shell { 
-    border: 1px solid var(--border-gray); 
-    border-radius: 16px; 
-    overflow-x: auto; 
+.roster-staged-preview {
+    margin-top: 4px;
+    max-height: 180px;
+    overflow-x: hidden;
+    overflow-y: auto;
 }
 
-.exam-table { 
-    border-collapse: collapse; 
-    font-size: 14px; 
-    min-width: 900px; 
-    width: 100%; 
+.roster-staged-preview .staged-roster-table {
+    min-width: 0;
 }
 
-.exam-table th, .exam-table td {
-    border-bottom: 1px solid var(--light-gray);
-    padding: 16px 18px;
-    text-align: left;
-    vertical-align: middle;
+.staged-count {
+    color: var(--color-secondary);
+    font-size: 0.78rem;
+    font-weight: 700;
+    margin-top: 0.55rem;
 }
 
-.exam-table th {
-    background: var(--text-box-bg);
-    color: var(--dark-gray);
-    font-size: 12px;
-    letter-spacing: .04em;
-    text-transform: uppercase;
-    white-space: nowrap;
+.student-info-card .student-info-list {
+    display: grid;
+    gap: 1rem;
+    margin: 1.25rem 0 0;
 }
 
-.exam-table tbody tr:last-child td { 
-    border-bottom: 0; 
+.student-info-card .student-info-list > div {
+    display: grid;
+    gap: 0.25rem;
 }
-.exam-table tbody tr:hover { 
-    background: var(--hover-gray); 
+
+.student-info-card .student-info-list dt {
+    color: var(--text-secondary);
+    font-size: 0.78rem;
+    font-weight: 700;
 }
-.course-code { 
-    font-weight: 800; 
+
+.student-info-card .student-info-list dd {
+    color: var(--text-primary);
+    margin: 0;
 }
-.roster-table th:nth-child(2),
-.roster-table td:nth-child(2) {
-    min-width: 170px;
-}
-.roster-table th:nth-child(3),
-.roster-table td:nth-child(3) {
-    min-width: 190px;
-}
-.roster-table th:nth-child(4),
-.roster-table td:nth-child(4),
-.roster-table th:nth-child(5),
-.roster-table td:nth-child(5),
-.roster-table th:nth-child(6),
-.roster-table td:nth-child(6) {
+
+.empty-cell {
+    color: var(--text-muted) !important;
+    padding: 2rem !important;
     text-align: center;
 }
-.action-cell { 
-    text-align: right !important; 
-}
 
-.roster-link, .back-link { 
-    color: var(--color-mapua-blue); 
-    font-weight: 700; 
-    text-decoration: none; 
-}
-.roster-link:hover, .back-link:hover { 
-    text-decoration: underline; 
-}
-
-.empty-cell { 
-    color: var(--subtle-text); 
-    padding: 64px 20px !important; 
-    text-align: center !important; }
-.empty-cell strong, .empty-cell span { 
-    display: block; 
-}
-.empty-cell strong { 
-    color: var(--dark-gray); 
-    font-size: 16px; 
-    margin-bottom: 6px; 
-}
-.back-link { 
-    display: inline-flex; 
-    gap: 7px; 
-    margin: 2px 0 28px; 
-}
-.roster-header { 
-    align-items: flex-start; 
-}
-.roster-actions { 
-    display: flex; 
-    justify-content: flex-end; 
-    margin: -12px 0 16px; 
-}
-.student-roster-row .student-name-cell { 
-    position: relative; 
-}
-.view-student-info {
-    background: none;
-    border: 0;
-    color: var(--color-mapua-blue);
-    cursor: pointer;
+.empty-cell span {
     display: block;
-    font: inherit;
-    font-size: 12px;
-    font-weight: 700;
-    opacity: 0;
-    padding: 4px 0 0;
-    transition: opacity var(--transition-fast);
-}
-.student-roster-row:hover .view-student-info, .view-student-info:focus { 
-    opacity: 1; 
-}
-.student-info-list { 
-    display: grid; 
-    gap: 14px;
-    margin: 26px 0 0; 
-}
-.student-info-list div { 
-    border-bottom: 1px solid var(--light-gray); 
-    display: flex; 
-    justify-content: space-between; 
-    gap: 24px; 
-    padding-bottom: 10px; 
-}
-.student-info-list dt { 
-    color: var(--subtle-text); 
-    font-size: 12px; 
-    font-weight: 800; 
-    text-transform: uppercase; 
-}
-.student-info-list dd { 
-    margin: 0; 
-    text-align: right; 
-}
-.status-badge, .result-badge {
-    align-items: center;
-    appearance: none;
-    border: 0;
-    border-radius: 12px;
-    cursor: pointer;
-    display: inline-flex;
-    font-family: inherit;
-    font-size: 13px;
-    font-weight: 700;
-    justify-content: center;
-    line-height: normal;
-    min-height: 24px;
-    padding: 0 10px;
-    transition: transform var(--transition-fast), opacity var(--transition-fast), box-shadow var(--transition-fast);
-}
-.status-badge { 
-    height: 24px;
-    line-height: normal;
-    min-height: 0;
-    padding: 0;
-    width: 44px;
-}
-.status-badge:hover, .result-badge:hover { 
-    box-shadow: 0 2px 6px rgba(0, 0, 0, .12); 
-    opacity: 0.9; 
-    transform: scale(1.1); 
-}
-.status-badge.passed { 
-    background: var(--light-green); 
-    color: var(--dark-green); 
-}
-.status-badge.completion { 
-    background: var(--light-yellow); 
-    color: var(--dark-yellow); 
-}
-.result-badge { 
-    border-radius: 12px; 
-    min-width: 106px; 
-}
-.result-badge.result-recorded { 
-    background: var(--light-blue); 
-    color: var(--color-mapua-blue); 
-}
-.result-badge.result-not-recorded { 
-    background: var(--light-red); 
-    color: var(--color-mapua-red); 
-}
-.roster-update-card { 
-    animation: popIn var(--transition-fast); 
-    background: var(--color-white); 
-    border-radius: 20px; 
-    box-shadow: 0 20px 40px rgba(0, 0, 0, .16); 
-    font-family: 'Albert Sans', sans-serif; 
-    max-width: 420px; 
-    padding: 32px; 
-    width: 90%; 
-}
-.roster-update-card .modal-title { 
-    color: var(--color-charcoal); 
-    font-size: 22px; 
-    font-weight: 800; 
-    margin: 0 0 12px; 
-}
-.roster-update-card .modal-message { 
-    color: var(--dark-gray); 
-    font-size: 15px; 
-    line-height: 1.5; 
-    margin: 0 0 24px; 
-}
-.status-options { 
-    display: flex; 
-    flex-direction: column; 
-    gap: 12px; 
-    margin-bottom: 28px; 
-}
-.status-option-card { 
-    align-items: center; 
-    border: 2px solid var(--border-gray); 
-    border-radius: 14px; 
-    cursor: pointer; 
-    display: flex; 
-    gap: 16px; 
-    padding: 14px 18px; 
-    transition: all var(--transition-fast); 
-}
-.status-option-card:hover, .status-option-card.selected { 
-    background: var(--text-box-bg); 
-    border-color: var(--color-charcoal); 
-}
-.status-option-card input { 
-    margin: 0; 
-}
-.status-option-card .status-badge, .status-option-card .result-badge { 
-    flex: 0 0 auto; 
-}
-.option-label { 
-    font-size: 14px; 
-    font-weight: 700; 
+    font-size: 0.7rem;
+    margin-top: 0.25rem;
 }
 
-.icon-button {
-    align-items: center;
-    background: transparent;
-    border: 0;
-    color: var(--color-mapua-red);
-    cursor: pointer;
-    display: inline-flex;
-    font-size: 24px;
-    height: 32px;
-    justify-content: center;
-    line-height: 1;
-    width: 32px;
-}
-.icon-button:hover { background: var(--hover-gray); border-radius: 8px; }
-.course-modal[hidden] { display: none; }
-.course-modal {
-    align-items: center;
-    background: rgba(24, 24, 24, .28);
-    display: flex;
-    inset: 0;
-    justify-content: center;
-    padding: 24px;
-    position: fixed;
-    z-index: 200;
-}
-.course-modal-card {
-    background: var(--color-white);
-    border-radius: 14px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, .2);
-    max-height: calc(100vh - 48px);
-    overflow-y: auto;
-    padding: 30px 36px;
-    width: min(720px, 100%);
-}
-.student-form-card { 
-    width: min(620px, 100%); 
-}
-.course-modal-card h2 { 
-    font-size: 24px; 
-    margin: 0; 
-}
-.form-grid { 
-    display: grid; 
-    gap: 16px; 
-    grid-template-columns: repeat(2, minmax(0, 1fr)); 
-    margin-top: 24px; 
-}
-.form-grid-wide { 
-    grid-template-columns: repeat(2, minmax(0, 1fr)); 
-}
-.field-full { 
-    grid-column: 1 / -1; 
-}
-.field { 
-    color: var(--dark-gray); 
-    font-size: 13px; 
-    font-weight: 700; 
-}
-.field input, .field select,
-.filter-toolbar input,
-.filter-toolbar select {
-    display: block;
-    margin-top: 7px;
-    width: 100%;
-    background: var(--color-white);
-    border: 1px solid #2b2b2b;
-    border-radius: 10px;
-    color: var(--color-charcoal);
-    font: inherit;
-    height: 42px;
-    outline: none;
-    padding: 0 12px;
-    box-shadow: none;
-}
-.field input:focus, .field select:focus,
-.filter-toolbar input:focus,
-.filter-toolbar select:focus {
-    background: var(--color-white);
-    border-color: #2b2b2b;
-    box-shadow: none;
-    outline: none;
-}
-.field select,
-.filter-toolbar select {
-    -webkit-appearance: none;
-    appearance: none;
-    background-image: linear-gradient(45deg, transparent 50%, var(--dark-gray) 50%), linear-gradient(135deg, var(--dark-gray) 50%, transparent 50%);
-    background-position: calc(100% - 17px) 17px, calc(100% - 12px) 17px;
-    background-repeat: no-repeat;
-    background-size: 5px 5px, 5px 5px;
-    cursor: pointer;
-    padding-right: 32px;
-    transition: background-color var(--transition-normal), border-color var(--transition-normal), box-shadow var(--transition-normal);
-}
-.staged-roster-shell { 
-    border: 1px solid var(--border-gray); 
-    border-radius: 10px; 
-    max-height: 230px; 
-    overflow: auto; 
-}
-.staged-roster-table { 
-    min-width: 0; 
-}
-.staged-roster-table th, .staged-roster-table td { 
-    padding: 11px 12px; 
-}
-.staged-roster-table .empty-cell { 
-    padding: 28px 12px !important; 
-}
-.form-message { 
-    color: var(--color-mapua-red); 
-    font-size: 13px; 
-    min-height: 18px; 
-    margin: 12px 0 0; 
-}
-.course-modal .modal-actions { 
-    display: flex; 
-    gap: 10px; 
-    justify-content: flex-end; 
-    margin-top: 20px; 
+@media (max-width: 800px) {
+    .filter-toolbar {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .filter-toolbar .search-field {
+        grid-column: 1 / -1;
+    }
 }
 
-.exam-summary {
-    display: grid;
-    gap: 10px 24px;
-    grid-template-columns: repeat(2, auto);
-}
+@media (max-width: 640px) {
+    .page-header,
+    .roster-header {
+        align-items: stretch;
+        flex-direction: column;
+    }
 
-.exam-summary span { 
-    color: var(--dark-gray); 
-    display: flex; 
-    flex-direction: column; 
-    font-size: 14px; 
-}
-.exam-summary strong {
-    color: var(--subtle-text);
-    font-size: 11px;
-    letter-spacing: .05em;
-    margin-bottom: 3px;
-    text-transform: uppercase;
-}
+    .page-header > .button,
+    .roster-actions .button {
+        width: 100%;
+    }
 
-.visually-hidden {
-    clip: rect(0 0 0 0);
-    clip-path: inset(50%);
-    height: 1px;
-    overflow: hidden;
-    position: absolute;
-    white-space: nowrap;
-    width: 1px;
-}
+    .filter-toolbar {
+        grid-template-columns: 1fr;
+    }
 
-@media (max-width: 1050px) {
-    .filter-toolbar { grid-template-columns: 1fr 1fr; }
-    .search-field { grid-column: 1 / -1; }
-}
+    .filter-toolbar .search-field {
+        grid-column: auto;
+    }
 
-@media (max-width: 700px) {
-    body { padding-top: 112px; }
-    .main-wrapper { padding: 0 18px 40px; }
-    .filter-toolbar { grid-template-columns: 1fr; }
-    .search-field { grid-column: auto; }
-    .roster-header { display: block; }
-    .exam-summary { margin-top: 24px; }
+    .exam-summary {
+        justify-content: flex-start;
+    }
+
+    .roster-preview-header,
+    .roster-preview-actions {
+        align-items: stretch;
+        flex-direction: column;
+    }
 }

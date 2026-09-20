@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Exit Exam Tracker</title>
+    <link rel="stylesheet" href="/css/variables.css">
+    <link rel="stylesheet" href="/css/dashboard.css">
+    <link rel="stylesheet" href="/css/admin.css">
+    <link rel="stylesheet" href="/css/data.css">
+</head>
+<body>
+    <%- include('menuBar') %>
+
+    <main class="main-wrapper">
+        <header class="page-header">
+            <div>
+                <p class="eyebrow">Administration</p>
+                <h1 class="page-title">Admin Panel</h1>
+                <p class="page-description">User access, exam configuration, system oversight, and data tools.</p>
+            </div>
+        </header>
+
+        <div class="admin-container">
+            <!-- Tabs -->
+            <div class="admin-tabs">
+                <button class="tab-btn active" data-tab="users">Users & Roles</button>
+                <button class="tab-btn" data-tab="catalog">Exam Catalog</button>
+                <button class="tab-btn" data-tab="analytics">Analytics</button>
+                <button class="tab-btn" data-tab="audit">Audit Logs</button>
+                <button class="tab-btn" data-tab="overrides">Overrides &amp; Cleanup</button>
+            </div>
+
+            <!-- TAB: Users -->
+            <div id="tab-users" class="tab-panel active data-card">
+                <div class="data-card-header table-controls">
+                    <p class="panel-description">Provision faculty accounts and assign roles.</p>
+                    <button id="btnNewUser" class="button-primary">
+                        <span class="material-symbols-outlined">person_add</span> Create User
+                    </button>
+                </div>
+                <div class="table-responsive">
+                    <table class="dashboard-table" id="usersTable">
+                        <thead>
+                            <tr>
+                                <th>Full Name</th>
+                                <th>Username</th>
+                                <th>Role</th>
+                                <th>Department</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td colspan="6" style="text-align: center;">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="tab-catalog" class="tab-panel data-card">
+                <div class="data-card-header table-controls">
+                    <p class="panel-description">Manage the exam offerings available to faculty.</p>
+                </div>
+                <div class="admin-empty-state">Exam catalog tools are ready for configuration.</div>
+            </div>
+
+            <div id="tab-analytics" class="tab-panel data-card">
+                <div class="data-card-header table-controls">
+                    <p class="panel-description">Review system performance and exam completion trends.</p>
+                </div>
+                <div class="admin-empty-state">Analytics will appear here as exam records are collected.</div>
+            </div>
+
+            <!-- TAB: Terms -->
+            <div id="tab-terms" class="tab-panel data-card">
+                <div class="data-card-header table-controls">
+                    <h2 class="data-card-title">Academic Terms Configuration</h2>
+                    <button id="btnNewTerm" class="button-primary">
+                        <span class="material-symbols-outlined">add_box</span> New Term
+                    </button>
+                </div>
+                <div class="table-responsive">
+                    <table class="dashboard-table" id="termsTable">
+                        <thead>
+                            <tr>
+                                <th>School Year</th>
+                                <th>Term</th>
+                                <th>Status</th>
+                                <th>Created By</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td colspan="5" style="text-align: center;">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- TAB: Overrides -->
+            <div id="tab-overrides" class="tab-panel data-card">
+                <div class="data-card-header">
+                    <h2 class="data-card-title">System Overrides</h2>
+                </div>
+                <div class="data-section-body">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+                        <!-- Unlock Exam -->
+                        <div class="card" style="padding: 1.5rem;">
+                            <h3>Unlock Exam Record</h3>
+                            <p style="color: var(--text-secondary); margin-bottom: 1rem; font-size: 0.875rem;">
+                                Locked records cannot be edited by faculty. Use this to unlock an accidentally locked record.
+                            </p>
+                            <div class="form-group">
+                                <select id="lockedExamSelect" class="form-select">
+                                    <option value="">Loading locked records...</option>
+                                </select>
+                                <button id="btnUnlock" class="button-primary" style="margin-top: 1rem;">Unlock Record</button>
+                            </div>
+                        </div>
+
+                        <!-- Merge Students -->
+                        <div class="card" style="padding: 1.5rem;">
+                            <h3>Merge Duplicate Students</h3>
+                            <p style="color: var(--text-secondary); margin-bottom: 1rem; font-size: 0.875rem;">
+                                If a student was imported twice with different IDs, merge them here. The duplicate ID will be deleted.
+                            </p>
+                            <div class="form-group">
+                                <input type="text" id="mergeKeepId" class="form-input" placeholder="Primary Student ID (to keep)">
+                                <input type="text" id="mergeDeleteId" class="form-input" placeholder="Duplicate Student ID (to delete)" style="margin-top: 0.5rem;">
+                                <button id="btnMerge" class="button-primary" style="margin-top: 1rem; background-color: var(--status-completion);">Merge Records</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB: Audit -->
+            <div id="tab-audit" class="tab-panel data-card">
+                <div class="data-card-header table-controls">
+                    <h2 class="data-card-title">Audit Logs</h2>
+                    <button id="btnRefreshAudit" class="button-secondary">
+                        <span class="material-symbols-outlined">refresh</span> Refresh
+                    </button>
+                </div>
+                <div class="table-responsive">
+                    <table class="dashboard-table" id="auditTable">
+                        <thead>
+                            <tr>
+                                <th>Date/Time</th>
+                                <th>Action</th>
+                                <th>Performed By</th>
+                                <th>Details</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td colspan="4" style="text-align: center;">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+
+        <footer class="dev-copyright">
+            &copy; <%= new Date().getFullYear() %> Andrea Caunga. All rights reserved.
+        </footer>
+    </main>
+
+    <!-- Modals go here (Users, Terms) -->
+    <div id="userModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="userModalTitle">New User</h3>
+                <button class="modal-close" onclick="closeModal('userModal')">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <form id="userForm">
+                <div class="modal-body">
+                    <div id="userAlert" class="alert"></div>
+                    <input type="hidden" id="userId" name="id">
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                        <div class="form-group">
+                            <label class="form-label">First Name</label>
+                            <input type="text" name="firstName" id="firstName" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Last Name</label>
+                            <input type="text" name="lastName" id="lastName" class="form-input" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group" style="margin-bottom: 1rem;">
+                        <label class="form-label">Email</label>
+                        <input type="email" name="email" id="email" class="form-input" required>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                        <div class="form-group">
+                            <label class="form-label">Username</label>
+                            <input type="text" name="username" id="username" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Password</label>
+                            <input type="password" name="password" id="password" class="form-input" placeholder="(Leave blank to keep current)">
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div class="form-group">
+                            <label class="form-label">Role</label>
+                            <select name="role" id="role" class="form-select">
+                                <option value="proctor">Proctor (Faculty)</option>
+                                <option value="admin">Administrator</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Status</label>
+                            <select name="isActive" id="isActive" class="form-select">
+                                <option value="true">Active</option>
+                                <option value="false">Inactive</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group" style="margin-top: 1rem;">
+                        <label class="form-label">Department (Optional)</label>
+                        <input type="text" name="department" id="department" class="form-input">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="button-secondary" onclick="closeModal('userModal')">Cancel</button>
+                    <button type="submit" class="button-primary">Save User</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Term Modal -->
+    <div id="termModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">New Academic Term</h3>
+                <button class="modal-close" onclick="closeModal('termModal')">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <form id="termForm">
+                <div class="modal-body">
+                    <div id="termAlert" class="alert"></div>
+                    
+                    <div class="form-group" style="margin-bottom: 1rem;">
+                        <label class="form-label">School Year (YYYY-YYYY)</label>
+                        <input type="text" name="schoolYear" id="termSchoolYear" class="form-input" pattern="^\d{4}-\d{4}$" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Term</label>
+                        <select name="term" id="termTerm" class="form-select" required>
+                            <option value="1st Term">1st Term</option>
+                            <option value="2nd Term">2nd Term</option>
+                            <option value="3rd Term">3rd Term</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="button-secondary" onclick="closeModal('termModal')">Cancel</button>
+                    <button type="submit" class="button-primary">Save Term</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="/scripts/admin.js"></script>
+</body>
+</html>

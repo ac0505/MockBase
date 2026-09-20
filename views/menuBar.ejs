@@ -1,6 +1,6 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Albert+Sans:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Albert+Sans:wght@700;800&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,400,0,0" rel="stylesheet">
 <link rel="stylesheet" href="/css/menuBar.css">
 
@@ -9,26 +9,49 @@
     <div class="navbar-container">
         <!-- Logo -->
         <div class="navbar-logo-container">
-            <a href="/dashboard">
-                <img src="/img/mmcmLogo.png" alt="MMCM Logo" class="navbar-logo">
+            <a href="/dashboard" style="display: flex; align-items: center; gap: 0.75rem;">
+                <div style="background-color: var(--color-secondary); color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                    <span class="material-symbols-outlined" style="font-size: 18px;">school</span>
+                </div>
+                <div class="navbar-brand-text">
+                    <span class="navbar-brand-title">Grade Tracker</span>
+                    <span class="navbar-brand-subtitle">MMCM Exit Exams</span>
+                </div>
             </a>
         </div>
 
-        <!-- Navigation Links -->
+        <!-- Navigation Links (Centered) -->
         <div id="navbar-links" class="navbar-links">
             <a class="navbar-link" href="/dashboard" title="Dashboard">
+                <span class="material-symbols-outlined">dashboard</span>
                 <span class="navbar-label">Dashboard</span>
             </a>
             <a class="navbar-link" href="/students" title="Students">
+                <span class="material-symbols-outlined">person</span>
                 <span class="navbar-label">Students</span>
             </a>
             <a class="navbar-link" href="/courses" title="Exit Examinations">
+                <span class="material-symbols-outlined">edit_document</span>
                 <span class="navbar-label">Exams</span>
             </a>
+            <a class="navbar-link" href="/data" title="Data Management">
+                <span class="material-symbols-outlined">swap_vert</span>
+                <span class="navbar-label">Data</span>
+            </a>
+            <% if (locals.userRole === 'admin') { %>
+                <a class="navbar-link" href="/admin" title="Admin Panel">
+                    <span class="material-symbols-outlined">settings</span>
+                    <span class="navbar-label">Admin</span>
+                </a>
+            <% } %>
         </div>
 
-        <!-- Logout Button -->
+        <!-- Logout / User Section -->
         <div class="navbar-logout-container">
+            <div class="navbar-user-role">
+                <span class="status-dot"></span>
+                <span><%= locals.userRole === 'admin' ? 'Admin' : 'Faculty User' %></span>
+            </div>
             <button id="logout-btn" class="navbar-logout" type="button" title="Log out">
                 <span class="material-symbols-outlined" aria-hidden="true">logout</span>
                 <span class="navbar-label">Logout</span>
@@ -54,7 +77,6 @@
             toggle.setAttribute('title', isOpen ? 'Close navigation' : 'Open navigation');
         });
 
-        // Set active class dynamically based on path
         const currentPath = window.location.pathname;
         const links = navbar.querySelectorAll('.navbar-link');
         links.forEach(link => {
@@ -67,5 +89,6 @@
                 link.removeAttribute('aria-current');
             }
         });
+
     })();
 </script>

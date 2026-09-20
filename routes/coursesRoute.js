@@ -140,6 +140,19 @@ coursesRouter.post("/api/create-course", async (req, res) => {
     }
 });
 
+coursesRouter.patch("/api/courses/:courseId", async (req, res) => {
+    try {
+        if (!mongoose.isValidObjectId(req.params.courseId) || !req.body?.courseName?.trim()) {
+            return res.status(400).json({ error: "A valid course name is required." });
+        }
+        const course = await Course.findByIdAndUpdate(req.params.courseId, { courseName: req.body.courseName.trim() }, { new: true, runValidators: true }).lean();
+        if (!course) return res.status(404).json({ error: "Course not found." });
+        return res.json({ course });
+    } catch (error) {
+        return res.status(500).json({ error: "Unable to update course name." });
+    }
+});
+
 coursesRouter.delete("/api/:examRecordId/roster/:studentId", async (req, res) => {
     try {
         const { examRecordId, studentId } = req.params;
@@ -177,6 +190,9 @@ coursesRouter.patch("/api/:examRecordId/roster/:studentId", async (req, res) => 
             return res.status(400).json({ error: "Recorded must be true or false." });
         }
 
+        examRecord.roster.forEach((rosterEntry) => {
+            if (!["P", "C", "Passed", "Completion"].includes(rosterEntry.status)) rosterEntry.status = "C";
+        });
         const entry = examRecord.roster.find((rosterEntry) => rosterEntry.student.toString() === studentId);
         if (status !== undefined) entry.status = status;
         if (recorded !== undefined) {
@@ -188,6 +204,44 @@ coursesRouter.patch("/api/:examRecordId/roster/:studentId", async (req, res) => 
     } catch (error) {
         console.error("Unable to update roster entry:", error);
         return res.status(500).json({ error: "Unable to update roster entry right now." });
+    }
+});
+
+coursesRouter.patch("/api/:examRecordId/roster/status", async (req, res) => {
+    try {
+        const { studentIds, status } = req.body || {};
+        if (!Array.isArray(studentIds) || !studentIds.length || !["P", "C"].includes(status)) {
+            return res.status(400).json({ error: "Select students and a valid status." });
+        }
+        const examRecord = await ExamRecord.findById(req.params.examRecordId);
+        if (!examRecord) return res.status(404).json({ error: "Exam record not found." });
+        const selected = new Set(studentIds.filter((id) => mongoose.isValidObjectId(id)).map(String));
+        examRecord.roster.forEach((entry) => {
+            if (!["P", "C", "Passed", "Completion"].includes(entry.status)) entry.status = "C";
+        });
+        examRecord.roster.forEach((entry) => {
+            if (selected.has(entry.student.toString())) entry.status = status;
+        });
+        await examRecord.save();
+        return res.json({ message: "Statuses updated." });
+    } catch (error) {
+        return res.status(500).json({ error: "Unable to update statuses right now." });
+    }
+});
+
+coursesRouter.patch("/api/roster/status", async (req, res) => {
+    try {
+        const { examRecordIds, status } = req.body || {};
+        if (!Array.isArray(examRecordIds) || !examRecordIds.length || !["P", "C"].includes(status)) {
+            return res.status(400).json({ error: "Select exam records and a valid status." });
+        }
+        await ExamRecord.updateMany(
+            { _id: { $in: examRecordIds.filter((id) => mongoose.isValidObjectId(id)) } },
+            { $set: { "roster.$[].status": status } }
+        );
+        return res.json({ message: "Statuses updated." });
+    } catch (error) {
+        return res.status(500).json({ error: "Unable to update statuses right now." });
     }
 });
 

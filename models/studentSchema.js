@@ -58,11 +58,10 @@ const studentSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-studentSchema.pre("validate", function setIdentityKey(next) {
+studentSchema.pre("validate", function setIdentityKey() {
   this.identityKey = [this.surname, this.firstName, this.middleName]
     .map((value) => String(value || "").trim().replace(/\s+/g, " ").toLowerCase())
     .join("|");
-  next();
 });
 
 export default mongoose.model("Student", studentSchema);

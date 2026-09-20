@@ -37,10 +37,11 @@
         const addStudentsModal = document.getElementById('addStudentsModal');
         const btnCloseAddStudents = document.getElementById('btnCloseAddStudents');
         const btnCancelAddStudents = document.getElementById('btnCancelAddStudents');
-        const asCourseCodeSelect = document.getElementById('asCourseCodeSelect');
-        const asSectionSelect = document.getElementById('asSectionSelect');
-        const asTermSelect = document.getElementById('asTermSelect');
+        const asCourseCode = document.getElementById('asCourseCode');
+        const asSection = document.getElementById('asSection');
+        const asTerm = document.getElementById('asTerm');
         const asSchoolYear = document.getElementById('asSchoolYear');
+        const studentSelectionPanel = document.getElementById('studentSelectionPanel');
         const asStudentSearch = document.getElementById('asStudentSearch');
         const asSearchResults = document.getElementById('asSearchResults');
         const asShowNewStudentForm = document.getElementById('asShowNewStudentForm');
@@ -49,27 +50,25 @@
         const asAddNewStudentBtn = document.getElementById('asAddNewStudentBtn');
         const asCancelNewStudentBtn = document.getElementById('asCancelNewStudentBtn');
         const newStudentForm = document.getElementById('newStudentForm');
+        const asNewCourse = document.getElementById('asNewCourse');
+        const asNewSection = document.getElementById('asNewSection');
+        const asNewSchoolYear = document.getElementById('asNewSchoolYear');
+        const asNewTerm = document.getElementById('asNewTerm');
         const asSelectedList = document.getElementById('asSelectedList');
+        const asSelectedTableBody = document.getElementById('asSelectedTableBody');
+        const asSelectedCount = document.getElementById('asSelectedCount');
         const asStudentFile = document.getElementById('asStudentFile');
         const btnSubmitAddStudents = document.getElementById('btnSubmitAddStudents');
         const selectedStudents = [];
         let availableCourses = Array.isArray(window.studentCourseOptions) ? window.studentCourseOptions : [];
+        let availableAcademicTerms = [];
+        let selectedOffering = null;
 
         let activeRow = null;
 
         function populateCourseOptions(courses) {
             availableCourses = courses;
             const courseCodes = [...new Set(availableCourses.map((course) => course.courseCode))];
-
-            if (asCourseCodeSelect) {
-                asCourseCodeSelect.innerHTML = '<option value="">Select course code...</option>';
-                courseCodes.forEach((courseCode) => {
-                    const option = document.createElement('option');
-                    option.value = courseCode;
-                    option.textContent = courseCode;
-                    asCourseCodeSelect.appendChild(option);
-                });
-            }
 
             if (filterCourse) {
                 filterCourse.innerHTML = '<option value="ALL">All Course Codes</option>';
@@ -81,6 +80,8 @@
                 });
             }
 
+            populateOfferingSelectors();
+
             if (filterSection) {
                 const sections = [...new Set(availableCourses.map((course) => course.section))];
                 filterSection.innerHTML = '<option value="ALL">All Sections</option>';
@@ -91,6 +92,43 @@
                     filterSection.appendChild(option);
                 });
             }
+
+            populateNewStudentSchoolYears();
+        }
+
+        function getAvailableOfferings() {
+            return availableCourses.flatMap((course) => (course.offerings || []).map((offering) => ({
+                ...offering,
+                course
+            })));
+        }
+
+        function populateOfferingSelectors() {
+            const schoolYears = [...new Set(getAvailableOfferings().map((offering) => offering.schoolYear))];
+            setSelectOptions(asSchoolYear, 'Select academic year...', schoolYears);
+            setSelectOptions(asTerm, 'Select term...', [], true);
+            setSelectOptions(asCourseCode, 'Select course code...', [], true);
+            setSelectOptions(asSection, 'Select section...', [], true);
+        }
+
+        function setSelectOptions(select, placeholder, values, disabled = false) {
+            if (!select) return;
+            select.innerHTML = `<option value="">${placeholder}</option>`;
+            values.forEach((value) => {
+                const option = document.createElement('option');
+                option.value = value;
+                option.textContent = value;
+                select.appendChild(option);
+            });
+            select.disabled = disabled || values.length === 0;
+        }
+
+        function populateNewStudentSchoolYears() {
+            const schoolYears = [...new Set(availableAcademicTerms.map((term) => term.schoolYear))];
+            setSelectOptions(asNewSchoolYear, 'Select school year...', schoolYears);
+            setSelectOptions(asNewTerm, 'Select term...', [], true);
+            setSelectOptions(asNewCourse, 'Select course...', [], true);
+            setSelectOptions(asNewSection, 'Select section...', [], true);
         }
 
         async function loadCourseOptions() {
@@ -107,20 +145,10 @@
             if (!response.ok) throw new Error(options.error || 'Unable to load form options.');
 
             const fetchedCourses = Array.isArray(options.courses) ? options.courses : [];
+            availableAcademicTerms = Array.isArray(options.academicTerms) ? options.academicTerms : [];
             populateCourseOptions(fetchedCourses.length ? fetchedCourses : availableCourses);
 
-            if (asSectionSelect) {
-                asSectionSelect.innerHTML = '<option value="">Select section...</option>';
-                asSectionSelect.disabled = true;
-            }
-
-            if (asTermSelect) {
-                asTermSelect.innerHTML = '<option value="">Select term...</option>';
-            }
-            if (asSchoolYear) {
-                asSchoolYear.innerHTML = '<option value="">Select school year...</option>';
-                asSchoolYear.disabled = true;
-            }
+            resetOfferingSelection();
         }
 
         async function openAddStudentModal() {
@@ -140,57 +168,71 @@
             console.error('Unable to load course options:', error);
         });
 
-        asCourseCodeSelect?.addEventListener('change', () => {
-            const sections = availableCourses
-                .filter((course) => course.courseCode === asCourseCodeSelect.value)
-                .map((course) => course.section);
-            asSectionSelect.innerHTML = '<option value="">Select section...</option>';
-            [...new Set(sections)].forEach((section) => {
-                const option = document.createElement('option');
-                option.value = section;
-                option.textContent = section;
-                asSectionSelect.appendChild(option);
-            });
-            asSectionSelect.disabled = sections.length === 0;
-            asTermSelect.innerHTML = '<option value="">Select term...</option>';
-            asTermSelect.disabled = true;
-            asSchoolYear.innerHTML = '<option value="">Select school year...</option>';
-            asSchoolYear.disabled = true;
-        });
-
-        asSectionSelect?.addEventListener('change', () => {
-            const selectedCourse = availableCourses.find((course) =>
-                course.courseCode === asCourseCodeSelect.value && course.section === asSectionSelect.value
-            );
-            const offerings = selectedCourse?.offerings || [];
-            const years = [...new Set(offerings.map((offering) => offering.schoolYear))];
-            asSchoolYear.innerHTML = '<option value="">Select school year...</option>';
-            years.forEach((year) => {
-                const option = document.createElement('option');
-                option.value = year;
-                option.textContent = year;
-                asSchoolYear.appendChild(option);
-            });
-            asSchoolYear.disabled = years.length === 0;
-            asTermSelect.innerHTML = '<option value="">Select term...</option>';
-            asTermSelect.disabled = true;
-        });
+        function resetOfferingSelection() {
+            selectedOffering = null;
+            populateOfferingSelectors();
+            if (studentSelectionPanel) studentSelectionPanel.hidden = true;
+        }
 
         asSchoolYear?.addEventListener('change', () => {
-            const selectedCourse = availableCourses.find((course) =>
-                course.courseCode === asCourseCodeSelect.value && course.section === asSectionSelect.value
-            );
-            const years = (selectedCourse?.offerings || [])
+            const terms = [...new Set(getAvailableOfferings()
                 .filter((offering) => offering.schoolYear === asSchoolYear.value)
-                .map((offering) => offering.term);
-            asTermSelect.innerHTML = '<option value="">Select term...</option>';
-            [...new Set(years)].forEach((term) => {
-                const option = document.createElement('option');
-                option.value = term;
-                option.textContent = term;
-                asTermSelect.appendChild(option);
-            });
-            asTermSelect.disabled = years.length === 0;
+                .map((offering) => offering.term))];
+            setSelectOptions(asTerm, 'Select term...', terms);
+            setSelectOptions(asCourseCode, 'Select course code...', [], true);
+            setSelectOptions(asSection, 'Select section...', [], true);
+        });
+
+        asTerm?.addEventListener('change', () => {
+            const courseCodes = [...new Set(getAvailableOfferings()
+                .filter((offering) => offering.schoolYear === asSchoolYear.value && offering.term === asTerm.value)
+                .map((offering) => offering.course.courseCode))];
+            setSelectOptions(asCourseCode, 'Select course code...', courseCodes);
+            setSelectOptions(asSection, 'Select section...', [], true);
+        });
+
+        asCourseCode?.addEventListener('change', () => {
+            const sections = [...new Set(getAvailableOfferings()
+                .filter((offering) => offering.schoolYear === asSchoolYear.value
+                    && offering.term === asTerm.value
+                    && offering.course.courseCode === asCourseCode.value)
+                .map((offering) => offering.course.section))];
+            setSelectOptions(asSection, 'Select section...', sections);
+        });
+
+        asSection?.addEventListener('change', () => {
+            const offering = getAvailableOfferings().find((item) => item.schoolYear === asSchoolYear.value
+                && item.term === asTerm.value
+                && item.course.courseCode === asCourseCode.value
+                && item.course.section === asSection.value);
+            selectedOffering = offering ? { course: offering.course, term: offering.term, schoolYear: offering.schoolYear } : null;
+            if (studentSelectionPanel) studentSelectionPanel.hidden = !selectedOffering;
+            if (btnSubmitAddStudents) btnSubmitAddStudents.disabled = !selectedOffering;
+            if (selectedOffering) asStudentSearch?.focus();
+        });
+
+        asNewSchoolYear?.addEventListener('change', () => {
+            const terms = [...new Set(availableAcademicTerms
+                .filter((academicTerm) => academicTerm.schoolYear === asNewSchoolYear.value)
+                .map((academicTerm) => academicTerm.term))];
+            setSelectOptions(asNewTerm, 'Select term...', terms);
+            setSelectOptions(asNewCourse, 'Select course...', [], true);
+            setSelectOptions(asNewSection, 'Select section...', [], true);
+        });
+
+        asNewTerm?.addEventListener('change', () => {
+            const courses = [...new Map(getAvailableOfferings()
+                .filter((offering) => offering.schoolYear === asNewSchoolYear.value && offering.term === asNewTerm.value)
+                .map((offering) => [offering.course.courseCode, offering.course])).values()];
+            setSelectOptions(asNewCourse, 'Select course...', courses.map((course) => course.courseCode));
+            setSelectOptions(asNewSection, 'Select section...', [], true);
+        });
+
+        asNewCourse?.addEventListener('change', () => {
+            const sections = [...new Set(getAvailableOfferings()
+                .filter((offering) => offering.schoolYear === asNewSchoolYear.value && offering.term === asNewTerm.value && offering.course.courseCode === asNewCourse.value)
+                .map((offering) => offering.course.section))];
+            setSelectOptions(asNewSection, 'Select section...', sections);
         });
 
         filterCourse?.addEventListener('change', () => {
@@ -211,14 +253,8 @@
         function resetAddStudentForm() {
             selectedStudents.length = 0;
             renderSelectedStudents();
-            asCourseCodeSelect.value = '';
-            asSectionSelect.innerHTML = '<option value="">Select section...</option>';
-            asSectionSelect.disabled = true;
-            asTermSelect.value = '';
-            asTermSelect.disabled = true;
-            asSchoolYear.value = '';
-            asSchoolYear.innerHTML = '<option value="">Select school year...</option>';
-            asSchoolYear.disabled = true;
+            resetOfferingSelection();
+            if (btnSubmitAddStudents) btnSubmitAddStudents.disabled = true;
             asStudentSearch.value = '';
             asSearchResults.innerHTML = '';
             asSearchResults.style.display = 'none';
@@ -233,14 +269,32 @@
         }
 
         function renderSelectedStudents() {
-            if (!asSelectedList) return;
-            asSelectedList.innerHTML = selectedStudents.length
-                ? selectedStudents.map((student, index) => `
-                    <div class="as-selected-student">
-                        <span>${student.firstName} ${student.surname} (${student.studentId})</span>
-                        <button type="button" data-index="${index}" class="as-remove-student" aria-label="Remove student">&times;</button>
-                    </div>`).join('')
-                : '<p class="as-empty-hint">No students added yet.</p>';
+            if (!asSelectedTableBody) return;
+            asSelectedTableBody.innerHTML = '';
+            if (!selectedStudents.length) {
+                asSelectedTableBody.innerHTML = '<tr><td class="empty-cell" colspan="5">No students added yet.</td></tr>';
+            } else {
+                selectedStudents.forEach((student, index) => {
+                    const row = document.createElement('tr');
+                    [student.firstName, student.surname, student.studentId, student.program].forEach((value) => {
+                        const cell = document.createElement('td');
+                        cell.textContent = value || '';
+                        row.appendChild(cell);
+                    });
+                    const actionCell = document.createElement('td');
+                    actionCell.className = 'action-cell';
+                    const removeButton = document.createElement('button');
+                    removeButton.type = 'button';
+                    removeButton.className = 'icon-button as-remove-student';
+                    removeButton.dataset.index = index;
+                    removeButton.setAttribute('aria-label', `Remove ${student.studentId}`);
+                    removeButton.textContent = '\u00d7';
+                    actionCell.appendChild(removeButton);
+                    row.appendChild(actionCell);
+                    asSelectedTableBody.appendChild(row);
+                });
+            }
+            if (asSelectedCount) asSelectedCount.textContent = selectedStudents.length ? `${selectedStudents.length} students staged.` : '';
         }
 
         function addStudentToSelection(student) {
@@ -288,6 +342,12 @@
                 document.getElementById(id).value = '';
             });
             document.getElementById('asNewProgram').value = '';
+            if (asNewCourse) asNewCourse.value = '';
+            if (asNewSection) {
+                asNewSection.innerHTML = '<option value="">Select section...</option>';
+                asNewSection.disabled = true;
+            }
+            populateNewStudentSchoolYears();
         }
 
         function closeNewStudentModal() {
@@ -306,11 +366,26 @@
                 firstName: document.getElementById('asNewFirstName').value.trim(),
                 surname: document.getElementById('asNewSurname').value.trim(),
                 middleName: document.getElementById('asNewMiddleName').value.trim(),
-                program: document.getElementById('asNewProgram').value
+                program: document.getElementById('asNewProgram').value,
+                courseCode: asNewCourse?.value || '',
+                section: asNewSection?.value || '',
+                schoolYear: asNewSchoolYear?.value || '',
+                term: asNewTerm?.value || ''
             };
-            if (!/^[A-Za-z0-9-]{1,20}$/.test(student.studentId) || !student.firstName || !student.surname || !student.program) {
-                window.alert('Student ID, first name, last name, and program are required.');
+            if (!/^[A-Za-z0-9-]{1,20}$/.test(student.studentId) || !student.firstName || !student.surname || !student.program || !student.courseCode || !student.section || !student.schoolYear || !student.term) {
+                window.alert('Complete all student and course details first.');
                 return;
+            }
+            const matchingCourse = availableCourses.find((course) => course.courseCode === student.courseCode && course.section === student.section);
+            const matchingOffering = matchingCourse?.offerings?.find((offering) => offering.schoolYear === student.schoolYear && offering.term === student.term);
+            if (matchingCourse && matchingOffering) {
+                selectedOffering = {course: matchingCourse, term: matchingOffering.term, schoolYear: matchingOffering.schoolYear};
+                    if (asCourseCode) asCourseCode.value = matchingCourse.courseCode;
+                    if (asSection) asSection.value = matchingCourse.section;
+                    if (asTerm) asTerm.value = matchingOffering.term;
+                    if (asSchoolYear) asSchoolYear.value = matchingOffering.schoolYear;
+                if (studentSelectionPanel) studentSelectionPanel.hidden = false;
+                if (btnSubmitAddStudents) btnSubmitAddStudents.disabled = false;
             }
             addStudentToSelection(student);
             closeNewStudentModal();
@@ -338,11 +413,8 @@
         });
 
         btnSubmitAddStudents?.addEventListener('click', async () => {
-            const selectedCourse = availableCourses.find((course) =>
-                course.courseCode === asCourseCodeSelect.value && course.section === asSectionSelect.value
-            );
-            if (!selectedCourse || !asTermSelect.value || !/^\d{4}-\d{4}$/.test(asSchoolYear.value.trim())) {
-                window.alert('Select a course, term, and valid school year first.');
+            if (!selectedOffering?.course || !selectedOffering.term || !/^\d{4}-\d{4}$/.test(selectedOffering.schoolYear.trim())) {
+                window.alert('Select a course offering first.');
                 return;
             }
             if (!selectedStudents.length) {
@@ -354,9 +426,9 @@
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({
-                    courseId: selectedCourse._id,
-                    term: asTermSelect.value,
-                    schoolYear: asSchoolYear.value.trim(),
+                    courseId: selectedOffering.course._id,
+                    term: selectedOffering.term,
+                    schoolYear: selectedOffering.schoolYear.trim(),
                     students: selectedStudents,
                     confirmExisting
                 })

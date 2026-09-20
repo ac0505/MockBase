@@ -78,7 +78,10 @@ export function parseStudentWorkbook(buffer, originalName = "") {
             firstName: valueFor(row, ["firstname", "givenname"]) || combinedNameParts.shift() || "",
             middleName: valueFor(row, ["middlename", "middleinitial", "mi"]),
             surname: valueFor(row, ["surname", "lastname", "familyname"]),
-            program: valueFor(row, ["program", "programcode", "course", "coursecode", "degree"])
+            program: valueFor(row, ["program", "programcode", "degree"]),
+            courseCode: valueFor(row, ["coursecode", "course", "subjectcode"]),
+            section: valueFor(row, ["section", "sectioncode", "classsection"]),
+            courseName: valueFor(row, ["coursename", "subjectname"])
         };
         if (!student.middleName && combinedNameParts.length) student.middleName = combinedNameParts.join(" ");
         if (!student.studentId && !student.firstName && !student.surname) return null;
