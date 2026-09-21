@@ -27,8 +27,9 @@
 }
 
 .navbar-logo {
-    height: 32px;
+    height: 44px;
     width: auto;
+    object-fit: contain;
 }
 
 .navbar-brand-text {

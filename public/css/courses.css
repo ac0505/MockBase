@@ -255,6 +255,10 @@
     background: #fafafa;
 }
 
+.exam-table.roster-table tbody tr.is-selected td {
+    background: #f1f1f1;
+}
+
 .exam-table .course-code {
     font-weight: 800;
 }
@@ -277,49 +281,66 @@
 /* 1. Student Number */
 .exam-table.roster-table th:nth-child(1), 
 .exam-table.roster-table td:nth-child(1) {
-    width: 14%;
+    width: 6%;
 }
 
 /* 2. Last Name */
 .exam-table.roster-table th:nth-child(2), 
 .exam-table.roster-table td:nth-child(2) {
-    width: 16%;
+    width: 14%;
 }
 
 /* 3. First Name/M.I. */
 .exam-table.roster-table th:nth-child(3), 
 .exam-table.roster-table td:nth-child(3) {
-    width: 22%;
+    width: 16%;
 }
 
 /* 4. Program */
 .exam-table.roster-table th:nth-child(4), 
 .exam-table.roster-table td:nth-child(4) {
-    width: 10%;
+    width: 22%;
 }
 
 /* 5. Status */
 .exam-table.roster-table th:nth-child(5), 
 .exam-table.roster-table td:nth-child(5) {
-    width: 8%;
+    width: 10%;
 }
 
 /* 6. Result */
 .exam-table.roster-table th:nth-child(6), 
 .exam-table.roster-table td:nth-child(6) {
-    width: 14%;
+    width: 8%;
 }
 
 /* 7. View info button column */
 .exam-table.roster-table th:nth-child(7), 
 .exam-table.roster-table td:nth-child(7) {
-    width: 10%;
+    width: 14%;
 }
 
 /* 8. Delete icon column */
 .exam-table.roster-table th:nth-child(8), 
 .exam-table.roster-table td:nth-child(8) {
-    width: 6%;
+    width: 10%;
+}
+
+.course-name-cell {
+    align-items: center;
+    display: flex;
+    gap: 0.4rem;
+    justify-content: space-between;
+}
+
+.course-name-cell .edit-course-name {
+    opacity: 0;
+    transition: opacity var(--transition-fast);
+}
+
+.course-name-cell:hover .edit-course-name,
+.course-name-cell:focus-within .edit-course-name {
+    opacity: 1;
 }
 
 .roster-link,

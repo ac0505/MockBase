@@ -31,10 +31,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const rosterBulkStatusActions = document.getElementById('rosterBulkStatusActions');
     const rosterBulkStatus = document.getElementById('rosterBulkStatus');
     const applyRosterBulkStatus = document.getElementById('applyRosterBulkStatus');
-    const selectAllExamRecords = document.getElementById('selectAllExamRecords');
-    const examBulkStatusActions = document.getElementById('examBulkStatusActions');
-    const examBulkStatus = document.getElementById('examBulkStatus');
-    const applyExamBulkStatus = document.getElementById('applyExamBulkStatus');
 
     function setModalVisibility(modal, visible) {
         if (!modal) return;
@@ -52,27 +48,20 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     selectAllRosterStudents?.addEventListener('change', () => {
-        document.querySelectorAll('.roster-student-select').forEach((checkbox) => { checkbox.checked = selectAllRosterStudents.checked; });
+        document.querySelectorAll('.roster-student-select').forEach((checkbox) => {
+            checkbox.checked = selectAllRosterStudents.checked;
+            checkbox.closest('.student-roster-row')?.classList.toggle('is-selected', checkbox.checked);
+        });
         syncBulkActionVisibility('.roster-student-select', rosterBulkStatusActions);
     });
-    document.querySelectorAll('.roster-student-select').forEach((checkbox) => checkbox.addEventListener('change', () => syncBulkActionVisibility('.roster-student-select', rosterBulkStatusActions)));
+    document.querySelectorAll('.roster-student-select').forEach((checkbox) => checkbox.addEventListener('change', () => {
+        checkbox.closest('.student-roster-row')?.classList.toggle('is-selected', checkbox.checked);
+        syncBulkActionVisibility('.roster-student-select', rosterBulkStatusActions);
+    }));
     applyRosterBulkStatus?.addEventListener('click', async () => {
         const studentIds = [...document.querySelectorAll('.roster-student-select:checked')].map((checkbox) => checkbox.value);
         if (!rosterBulkStatus.value || !studentIds.length) return;
         const response = await fetch(`/courses/api/${editRosterButton.dataset.examRecordId}/roster/status`, { method: 'PATCH', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ studentIds, status: rosterBulkStatus.value }) });
-        if (!response.ok) return window.alert((await response.json().catch(() => ({}))).error || 'Unable to update statuses.');
-        window.location.reload();
-    });
-
-    selectAllExamRecords?.addEventListener('change', () => {
-        document.querySelectorAll('.exam-record-select').forEach((checkbox) => { checkbox.checked = selectAllExamRecords.checked; });
-        syncBulkActionVisibility('.exam-record-select', examBulkStatusActions);
-    });
-    document.querySelectorAll('.exam-record-select').forEach((checkbox) => checkbox.addEventListener('change', () => syncBulkActionVisibility('.exam-record-select', examBulkStatusActions)));
-    applyExamBulkStatus?.addEventListener('click', async () => {
-        const examRecordIds = [...document.querySelectorAll('.exam-record-select:checked')].map((checkbox) => checkbox.value);
-        if (!examBulkStatus.value || !examRecordIds.length) return;
-        const response = await fetch('/courses/api/roster/status', { method: 'PATCH', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ examRecordIds, status: examBulkStatus.value }) });
         if (!response.ok) return window.alert((await response.json().catch(() => ({}))).error || 'Unable to update statuses.');
         window.location.reload();
     });
